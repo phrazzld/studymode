@@ -1,39 +1,19 @@
+"use client";
+
 import Link from "next/link";
-import { Quiz } from "../../typings";
+import { useQuizzes } from "../../hooks/useQuizzes";
+import { auth } from '../../pages/_app'
 
-/* const fetchQuizzes = async () => { */
-/*   const res = await fetch('http://localhost:3000/api/quizzes') */
-/*   const quizzes: Quiz[] = await res.json() */
-/*   return quizzes */
-/* } */
-
-/* export default async function QuizzesList() { */
-/*   const quizzes = await fetchQuizzes() */
 export default function QuizzesList() {
-  const quizzes: Quiz[] = [
-    {
-      id: 1,
-      question: "What is 1 + 1?",
-      answers: [
-        {
-          text: "2",
-          correct: true,
-        },
-        {
-          text: "3",
-          correct: false,
-        },
-        {
-          text: "7",
-          correct: false,
-        },
-        {
-          text: "banana",
-          correct: false,
-        },
-      ],
-    },
-  ];
+  const { quizzes, loading, error } = useQuizzes();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div>
