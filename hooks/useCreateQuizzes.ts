@@ -31,12 +31,12 @@ export const useCreateQuizzes = (source: string) => {
 
     const { quizzes } = await response.json();
 
-    // Save quizzes to users/sources/{sourceId}/quizzes subcollection
+    // Save quizzes to users/quizzes subcollection
     quizzes.forEach(async (quiz: any) => {
-      await addDoc(
-        collection(db, "users", user.uid, "sources", sourceDoc.id, "quizzes"),
-        quiz
-      );
+      await addDoc(collection(db, "users", user.uid, "quizzes"), {
+        sourceId: sourceDoc.id,
+        ...quiz,
+      });
     });
   };
 

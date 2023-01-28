@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import { useQuiz } from "../../../hooks/useQuiz";
+import { Answer } from "../../../typings";
 
 type PageProps = {
   params: {
@@ -6,44 +9,24 @@ type PageProps = {
   };
 };
 
-/* const fetchQuiz = async (quizId: string) => { */
-/*   const res = await fetch(`http://localhost:3000/api/quizzes/${quizId}`); */
-/*   const quiz = await res.json(); */
-/*   return quiz; */
-/* } */
-
 export default function QuizPage({ params: { quizId } }: PageProps) {
-  /* const quiz = await fetchQuiz(quizId) */
-  const quiz = {
-    id: 1,
-    question: "What is 1 + 1?",
-    answers: [
-      {
-        text: "2",
-        correct: true,
-      },
-      {
-        text: "3",
-        correct: false,
-      },
-      {
-        text: "7",
-        correct: false,
-      },
-      {
-        text: "banana",
-        correct: false,
-      },
-    ],
-  };
+  const { quiz, loading, error } = useQuiz(quizId);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
 
   return (
     <div>
       <h1>Quiz Page: {quizId}</h1>
       <p>Question: {quiz.question}</p>
       <ul>
-        {quiz.answers.map((answer) => (
-          <li key={answer.text}>{answer.text}</li>
+        {quiz.answers.map((answer: Answer) => (
+          <li key={answer.text}>{answer.text} (correct: {answer.correct})</li>
         ))}
       </ul>
     </div>
