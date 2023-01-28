@@ -1,30 +1,29 @@
 "use client";
 
+import React, { useEffect } from "react";
+import { auth } from "../pages/_app";
+import { useStore } from "../store";
 import "../styles/globals.css";
 import Header from "./Header";
-import { auth } from "../pages/_app";
-import React, { useState, useEffect } from "react";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<any>(null);
+  const { userId, setUserId } = useStore();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setUser(user);
+        setUserId(user.uid);
       } else {
-        setUser(null);
+        setUserId(null);
       }
     });
 
     return () => unsubscribe();
   }, []);
-
-  console.log("RootLayout::user:", user);
 
   return (
     <html>
