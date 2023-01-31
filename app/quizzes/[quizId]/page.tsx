@@ -65,7 +65,7 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
       <ul>
         {quiz.answers.map((answer: Answer) => (
           <li key={answer.text}>
-            {answer.text} (correct: {answer.correct})
+            {answer.text} (correct: {answer.correct.toString()})
           </li>
         ))}
       </ul>

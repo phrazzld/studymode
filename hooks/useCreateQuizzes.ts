@@ -39,9 +39,16 @@ export const useCreateQuizzes = (source: string) => {
 
       // Save quizzes to users/quizzes subcollection
       quizzes.forEach(async (quiz: any) => {
+        // Convert quiz.answers.map(a => a.correct) to booleans
+        const answers = quiz.answers.map((a: any) => ({
+          ...a,
+          correct: a.correct === "true",
+        }));
+
         await addDoc(collection(db, "users", user.uid, "quizzes"), {
           sourceId: sourceDoc.id,
-          ...quiz,
+          question: quiz.question,
+          answers
         });
       });
     } catch (err: any) {
