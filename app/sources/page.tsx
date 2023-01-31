@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { useSources } from "../../hooks/useSources";
+import { Source } from "../../typings";
 
 export default function Sources() {
   const { sources, loading, error } = useSources();
@@ -18,7 +18,7 @@ export default function Sources() {
   return (
     <div className="px-4 py-4">
       <ul className="space-y-4">
-        {sources.map((source) => (
+        {sources.map((source: Source) => (
           <li key={source.id} className="flex items-center">
             <Link
               href={`/sources/${source.id}`}

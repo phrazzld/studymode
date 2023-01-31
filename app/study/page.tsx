@@ -42,7 +42,7 @@ export default function Study() {
       <h1>Study</h1>
       <p>Question: {quiz.question}</p>
       <ul>
-        {quiz.answers.map((answer) => (
+        {quiz.answers.map((answer: Answer) => (
           <li key={answer.text} onClick={() => submitAnswer(answer)}>{answer.text}</li>
         ))}
       </ul>

@@ -2,11 +2,12 @@ import { collection, getDocs, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../pages/_app";
 import { useStore } from "../store";
+import { Source } from "../typings";
 
 export const useSources = () => {
-  const [sources, setSources] = useState<any[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const { userId } = useStore();
 
   // Fetch sources from Firestore
@@ -25,7 +26,7 @@ export const useSources = () => {
         ss.push({ id: snap.id, ...snap.data() });
       });
       setSources(ss);
-    } catch (error) {
+    } catch (error: any) {
       setError(error);
     } finally {
       setLoading(false);

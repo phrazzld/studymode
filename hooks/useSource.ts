@@ -7,7 +7,7 @@ import { Source } from "../typings";
 export const useSource = (sourceId: string) => {
   const [source, setSource] = useState<Source | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const { userId } = useStore();
 
   // Fetch sources from Firestore
@@ -26,7 +26,7 @@ export const useSource = (sourceId: string) => {
       }
       const sourceData = sourceSnapshot.data();
       setSource(sourceData as Source);
-    } catch (error) {
+    } catch (error: any) {
       setError(error);
     } finally {
       setLoading(false);
