@@ -49,6 +49,9 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
   return (
     <div className="flex flex-col p-6 max-w-screen-sm mx-auto">
       <h1 className="text-2xl font-medium mb-4">Quiz Page: {quizId}</h1>
+      <Link href="/sources/[sourceId]" as={`/sources/${quiz.sourceId}`}>
+        <p className="text-blue-500 underline">Source: {quiz.sourceId}</p>
+      </Link>
       <p className="text-lg font-medium mb-4">Question: {quiz.question}</p>
       <ul className="text-lg font-medium mb-4">
         {quiz.answers.map((answer: Answer) => (
