@@ -13,12 +13,10 @@ type PageProps = {
   };
 };
 
-export default function QuizPage({ params: { quizId } }: PageProps) {
+export default function EditQuizPage({ params: { quizId } }: PageProps) {
   const { quiz, loading, error } = useQuiz(quizId);
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState<Answer[]>([]);
-
-  console.log("quiz:", quiz);
 
   useEffect(() => {
     if (quiz && !question && answers.length === 0) {

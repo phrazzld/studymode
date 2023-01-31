@@ -11,7 +11,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId, setUserId } = useStore();
+  const { setUserId } = useStore();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -30,7 +30,7 @@ export default function RootLayout({
       <head />
       <body>
         <Header />
-        {children}
+        <div className="max-w-screen-sm mx-auto">{children}</div>
       </body>
     </html>
   );

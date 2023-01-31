@@ -12,6 +12,9 @@ export default function Header() {
         studymode
       </Link>
       <div>
+        <Link href="/sources" className="text-xl text-white p-5">
+          Sources
+        </Link>
         <Link href="/quizzes" className="text-xl text-white p-5">
           Quizzes
         </Link>

@@ -11,7 +11,6 @@ export const useQuiz = (quizId: string) => {
   const { userId } = useStore();
 
   // Fetch quizzes from Firestore
-  // The user has a sources subcollection, and each source document has a quizzes subcollection
   const fetchQuiz = async () => {
     try {
       if (!userId) {

@@ -1,17 +1,10 @@
 "use client";
 
-import { useQuiz } from "../../../hooks/useQuiz";
+import { deleteDoc, doc } from "firebase/firestore";
 import Link from "next/link";
-import { Answer } from "../../../typings";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  deleteDoc,
-  setDoc,
-} from "firebase/firestore";
+import { useQuiz } from "../../../hooks/useQuiz";
 import { auth, db } from "../../../pages/_app";
+import { Answer } from "../../../typings";
 
 type PageProps = {
   params: {
@@ -21,11 +14,6 @@ type PageProps = {
 
 export default function QuizPage({ params: { quizId } }: PageProps) {
   const { quiz, loading, error } = useQuiz(quizId);
-
-  /* const editQuiz = () => { */
-  /*   // TODO: Redirect to edit quiz page */
-  /*   window.location.href = `/quizzes/${quizId}/edit`; */
-  /* }; */
 
   const deleteQuiz = async () => {
     // TODO: Prompt for confirmation
@@ -59,22 +47,29 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
   }
 
   return (
-    <div>
-      <h1>Quiz Page: {quizId}</h1>
-      <p>Question: {quiz.question}</p>
-      <ul>
+    <div className="flex flex-col p-6 max-w-screen-sm mx-auto">
+      <h1 className="text-2xl font-medium mb-4">Quiz Page: {quizId}</h1>
+      <p className="text-lg font-medium mb-4">Question: {quiz.question}</p>
+      <ul className="text-lg font-medium mb-4">
         {quiz.answers.map((answer: Answer) => (
-          <li key={answer.text}>
+          <li key={answer.text} className="mb-2">
             {answer.text} (correct: {answer.correct.toString()})
           </li>
         ))}
       </ul>
 
-      <div>
+      <div className="flex">
         <Link href="/quizzes/[quizId]/edit" as={`/quizzes/${quizId}/edit`}>
-          <button>Edit</button>
+          <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mr-4">
+            Edit
+          </button>
         </Link>
-        <button onClick={deleteQuiz}>Delete</button>
+        <button
+          onClick={deleteQuiz}
+          className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );
