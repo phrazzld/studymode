@@ -6,7 +6,7 @@ import { useCreateQuizzes } from "../../hooks/useCreateQuizzes";
 // TODO: Better error handling and UX
 export default function CreateQuiz() {
   const [source, setSource] = useState("");
-  const createQuizzes = useCreateQuizzes(source);
+  const { createQuizzes, loading, error } = useCreateQuizzes(source);
 
   // Return a form with a text input and a submit button
   return (
@@ -25,6 +25,7 @@ export default function CreateQuiz() {
       <button
         className="bg-blue-500 text-white rounded-md p-2"
         onClick={createQuizzes}
+        disabled={loading}
       >
         Generate Quizzes
       </button>
