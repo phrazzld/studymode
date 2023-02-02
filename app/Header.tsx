@@ -16,24 +16,22 @@ export default function Header() {
       <Link href="/" className="text-2xl font-bold text-white">
         studymode
       </Link>
-      {!!userId && (
-        <>
-          <Link href="/sources" className="text-xl text-white p-5">
-            Sources
-          </Link>
-          <Link href="/quizzes" className="text-xl text-white p-5">
-            Quizzes
-          </Link>
-          <Link href="/study" className="text-xl text-white p-5">
-            Study
-          </Link>
-        </>
-      )}
       <div>
         {!!userId ? (
-          <Link href="#" className="text-xl text-white p-5" onClick={signOut}>
-            Sign Out
-          </Link>
+          <>
+            <Link href="/sources" className="text-xl text-white p-5">
+              Sources
+            </Link>
+            <Link href="/quizzes" className="text-xl text-white p-5">
+              Quizzes
+            </Link>
+            <Link href="/study" className="text-xl text-white p-5">
+              Study
+            </Link>
+            <Link href="#" className="text-xl text-white p-5" onClick={signOut}>
+              Sign Out
+            </Link>
+          </>
         ) : (
           <Link href="/auth" className="text-xl text-white p-5">
             Sign In
