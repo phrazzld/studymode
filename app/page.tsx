@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useStore } from '../store'
-import { topics } from './study/topics'
+import { topics } from '../constants/topics'
 
 export default function Home() {
     const { userId } = useStore()
@@ -22,7 +22,6 @@ export default function Home() {
     }, [wait])
 
     useEffect(() => {
-        let targetText = subject
         if (!increase && text.length > 0) {
             const reverseAnimation = setInterval(() => {
                 setText(text.slice(0, -1))
@@ -42,7 +41,7 @@ export default function Home() {
         let index = 0
         if (increase && text !== targetText) {
             const fowardAnimation = setInterval(() => {
-                setText((text) => (text += targetText[index - 1]))
+                setText((t) => (t += targetText[index - 1]))
                 index++
                 if (index === targetText.length) {
                     clearInterval(fowardAnimation)
@@ -56,10 +55,14 @@ export default function Home() {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <div>
-                <p className="text-xl font-sm">I want to know...</p>
+                <p className="text-xl font-sm">I want to learn...</p>
             </div>
             <div className="text-center">
-                <h1 className={` text-5xl font-bold text-gray-800`}>{text}</h1>
+                <h1
+                    className={` text-5xl font-bold text-gray-800 h-14 w-screen`}
+                >
+                    {text}
+                </h1>
                 <p className="text-lg font-medium text-gray-600">
                     Learn smarter, not harder.
                 </p>

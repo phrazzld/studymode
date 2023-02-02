@@ -35,8 +35,6 @@ export const topics = [
     'Project Management',
     'Agile Methodology',
     'Scrum',
-    'Six Sigma',
-    'Lean Management',
     'Business Analytics',
     'Financial Modeling',
 ]
