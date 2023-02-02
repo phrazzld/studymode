@@ -1,27 +1,32 @@
-# Next.js + Tailwind CSS Example
+# studymode
+> Learn smarter, not harder.
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v3.2)](https://tailwindcss.com/blog/tailwindcss-v3-2) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+studymode is a learning application. Enter some text, and studymode will generate relevant quizzes for you. Take your quizzes any time to review and cement your knowledge.
 
-## Deploy your own
+## Roadmap
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+There's a lot we want to do with studymode, and things are changing faster than ever, so there is no guarantee this roadmap is up-to-date. But broad strokes on features we're working towards:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+### Longform sources
 
-## How to use
+studymode currently works best with relatively short text sources. We would very much like it to work with longform content.
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+### References as sources
 
-```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
-```
+Copying and pasting the text you want to generate quizzes from can be a point of friction. Ideally you could just say "college level introductory chemistry" or "The Odyssey" and get a stack of high-quality quizzes.
 
-```bash
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
-```
+### Personalized review schedule
 
-```bash
-pnpm create next-app --example with-tailwindcss with-tailwindcss-app
-```
+Reviewing whatever quizzes you want whenever you want is fine, but ideally users would be prompted to review specific material only when they absolutely needed to in order to maximize retention. Instead of combing through piles of quizzes trying to remember what you need to remember, you should be able to take the quizzes we push you and be confident you'll remember everything you want.
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+### Take learning goals into account
+
+Given a blob of text, there's only so much we can do to determine what's important for you to remember and what's not. Seeding the quiz generation request with some learning goals could help improve the quality and relevance of generated quizzes from source materials.
+
+## Technologies
+
+- Next.js 13
+- Firebase
+- Tailwind CSS
+- OpenAI GPT API
+- Deployed with Vercel
