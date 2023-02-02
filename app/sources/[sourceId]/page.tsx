@@ -47,7 +47,7 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
   }
 
   if (error) {
-    return <div>{error.message}</div>;
+    return <div>{error}</div>;
   }
 
   if (!source) {

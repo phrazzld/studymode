@@ -72,7 +72,7 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
   }
 
   if (error) {
-    return <div>{error.message}</div>;
+    return <div>{error}</div>;
   }
 
   if (!quiz) {
