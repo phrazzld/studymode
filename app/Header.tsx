@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { auth } from "../pages/_app";
+import { useStore } from "../store";
 
 export default function Header() {
+  const { userId } = useStore();
+
   const signOut = async () => {
     await auth.signOut();
   };
@@ -11,18 +16,21 @@ export default function Header() {
       <Link href="/" className="text-2xl font-bold text-white">
         studymode
       </Link>
+      {!!userId && (
+        <>
+          <Link href="/sources" className="text-xl text-white p-5">
+            Sources
+          </Link>
+          <Link href="/quizzes" className="text-xl text-white p-5">
+            Quizzes
+          </Link>
+          <Link href="/study" className="text-xl text-white p-5">
+            Study
+          </Link>
+        </>
+      )}
       <div>
-        <Link href="/sources" className="text-xl text-white p-5">
-          Sources
-        </Link>
-        <Link href="/quizzes" className="text-xl text-white p-5">
-          Quizzes
-        </Link>
-        <Link href="/study" className="text-xl text-white p-5">
-          Study
-        </Link>
-
-        {auth.currentUser ? (
+        {!!userId ? (
           <Link href="#" className="text-xl text-white p-5" onClick={signOut}>
             Sign Out
           </Link>

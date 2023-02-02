@@ -7,18 +7,18 @@ import {
 } from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../pages/_app";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter()
+  const router = useRouter();
 
   const signUp = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      router.push("/")
+      router.push("/");
     } catch (error: any) {
       setError(error.message);
     }
@@ -27,7 +27,7 @@ export default function Auth() {
   const signIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/")
+      router.push("/");
     } catch (error: any) {
       setError(error.message);
     }
@@ -42,63 +42,45 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-medium">Auth</h1>
+    <div className="flex flex-col items-center py-8">
       {error && <p className="text-red-500">{error}</p>}
       <input
-        className="bg-gray-200 p-2 rounded-md w-full"
+        className="bg-gray-200 p-4 rounded-md w-full mt-8"
         type="email"
         placeholder="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
-        className="bg-gray-200 p-2 rounded-md w-full mt-4"
+        className="bg-gray-200 p-4 rounded-md w-full mt-8"
         type="password"
         placeholder="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button
-        className="bg-blue-500 text-white p-2 rounded-md mt-4"
-        onClick={signUp}
-      >
-        Sign Up
-      </button>
-      <button
-        className="bg-blue-500 text-white p-2 rounded-md mt-4"
-        onClick={signIn}
-      >
-        Sign In
-      </button>
-      <button
-        className="bg-blue-500 text-white p-2 rounded-md mt-4"
-        onClick={resetPassword}
-      >
-        Reset Password
-      </button>
+      <div className="flex mt-4">
+        <button
+          className="bg-blue-500 text-white py-4 px-8 rounded-md mt-8 m-5"
+          onClick={signUp}
+        >
+          Sign Up
+        </button>
+        <button
+          className="bg-white text-blue-500 py-4 px-8 rounded-md mt-8 border border-blue-500 m-5"
+          onClick={signIn}
+        >
+          Sign In
+        </button>
+      </div>
+      <p className="text-gray-500 mt-8">
+        Forgot password?
+        <span
+          className="underline cursor-pointer text-blue-500 px-4"
+          onClick={resetPassword}
+        >
+          Reset password
+        </span>
+      </p>
     </div>
   );
-
-  /* return ( */
-  /*   <div> */
-  /*     <h1>Auth</h1> */
-  /*     {error && <p>{error}</p>} */
-  /*     <input */
-  /*       type="email" */
-  /*       placeholder="email" */
-  /*       value={email} */
-  /*       onChange={(e) => setEmail(e.target.value)} */
-  /*     /> */
-  /*     <input */
-  /*       type="password" */
-  /*       placeholder="password" */
-  /*       value={password} */
-  /*       onChange={(e) => setPassword(e.target.value)} */
-  /*     /> */
-  /*     <button onClick={signUp}>Sign Up</button> */
-  /*     <button onClick={signIn}>Sign In</button> */
-  /*     <button onClick={resetPassword}>Reset Password</button> */
-  /*   </div> */
-  /* ); */
 }

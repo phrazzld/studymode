@@ -1,6 +1,11 @@
+"use client";
+
 import React from "react";
+import { useStore } from "../store";
 
 export default function Home() {
+  const { userId } = useStore();
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="text-center">
@@ -22,7 +27,7 @@ export default function Home() {
 
       <div className="mt-10">
         <a
-          href="/quizzes"
+          href={`${userId ? "/quizzes" : "/auth"}`}
           className="btn bg-blue-500 text-white py-4 px-4 rounded"
         >
           Get Started
