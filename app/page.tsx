@@ -6,6 +6,10 @@ import { useStore } from "../store";
 
 export default function Home() {
   const { userId } = useStore();
+
+  // Shuffle topics
+  const shuffledTopics = topics.sort(() => 0.5 - Math.random());
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div>
@@ -28,7 +32,7 @@ export default function Home() {
                 .start();
             }}
             options={{
-              strings: topics,
+              strings: shuffledTopics,
               autoStart: true,
               loop: true,
             }}
