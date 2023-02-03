@@ -1,8 +1,10 @@
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
 import { auth, db } from "../pages/_app";
+import { Quiz } from "../typings";
 
 export const useCreateQuizzes = (source: string) => {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,6 +26,7 @@ export const useCreateQuizzes = (source: string) => {
         collection(db, "users", user.uid, "sources"),
         {
           text: source,
+          createdAt: new Date(),
         }
       );
 
@@ -48,9 +51,12 @@ export const useCreateQuizzes = (source: string) => {
         await addDoc(collection(db, "users", user.uid, "quizzes"), {
           sourceId: sourceDoc.id,
           question: quiz.question,
-          answers
+          answers,
+          createdAt: new Date(),
         });
       });
+
+      setQuizzes(quizzes);
     } catch (err: any) {
       console.error(err);
       setError(err);
@@ -59,5 +65,5 @@ export const useCreateQuizzes = (source: string) => {
     }
   };
 
-  return { createQuizzes, loading, error };
+  return { createQuizzes, quizzes, loading, error };
 };

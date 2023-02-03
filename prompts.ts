@@ -1,3 +1,4 @@
+// 1326 characters, 486 tokens
 export const PROMPTS = {
   GENERATE_QUIZ: `You are a personal tutor. Turn the text below into one or more multiple choice quizzes based on the text. Mark the correct answer for each quiz, and format your response as A JSON object.
 
