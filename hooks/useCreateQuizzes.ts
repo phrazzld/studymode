@@ -10,6 +10,7 @@ export const useCreateQuizzes = (source: string) => {
 
   const createQuizzes = async () => {
     try {
+      setError(null);
       setLoading(true);
       if (!auth.currentUser) {
         console.log("No user logged in");
@@ -37,6 +38,13 @@ export const useCreateQuizzes = (source: string) => {
         },
         body: JSON.stringify({ source }),
       });
+
+      // If the response is not ok, throw an error
+      if (!response.ok) {
+        const errResponse = await response.json();
+        setError(errResponse.error);
+        return;
+      }
 
       const { quizzes } = await response.json();
 

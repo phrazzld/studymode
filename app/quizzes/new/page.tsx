@@ -1,28 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SAMPLE_SOURCE_CONTENT } from "../../../constants/sampleSourceContent";
 import { useCreateQuizzes } from "../../../hooks/useCreateQuizzes";
 
-// TODO: Better error handling and UX
 // TODO: Add learning goals input
 // TODO: Obviate need for character limit enforcement
 export default function CreateQuiz() {
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [source, setSource] = useState("");
-  const [error, setError] = useState("");
-  const {
-    createQuizzes,
-    quizzes,
-    loading,
-    error: creationError,
-  } = useCreateQuizzes(source);
-
-  useEffect(() => {
-    if (creationError) {
-      setError(creationError);
-    }
-  }, [creationError]);
+  const { createQuizzes, quizzes, loading, error } = useCreateQuizzes(source);
 
   const getRandomSourceContent = (): void => {
     const randomIndex = Math.floor(
@@ -33,9 +21,9 @@ export default function CreateQuiz() {
 
   const handleCreateQuizzes = (): void => {
     if (source.length > 1000) {
-      setError("Source content must be less than 1000 characters");
+      setValidationError("Source content must be less than 1000 characters");
     } else {
-      setError("");
+      setValidationError("");
       createQuizzes();
     }
   };
@@ -71,9 +59,9 @@ export default function CreateQuiz() {
           </button>
         </div>
       </div>
-      {error && (
+      {(error || validationError) && (
         <div className="mt-4 bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg">
-          <p>An error occurred: {error}</p>
+          <p>An error occurred: {error || validationError}</p>
         </div>
       )}
       {quizzes.length > 0 && (
