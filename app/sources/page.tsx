@@ -17,6 +17,19 @@ export default function Sources() {
 
   return (
     <div className="px-4 py-4">
+      <h1 className="text-2xl font-bold mb-4">Sources</h1>
+
+      {sources.length === 0 && (
+        <div>
+          <p className="text-lg font-medium text-gray-600 mb-5">No sources found</p>
+          <Link href="/quizzes/new">
+            <button className="btn bg-blue-500 text-white py-4 px-4 rounded">
+              Get Started
+            </button>
+          </Link>
+        </div>
+      )}
+
       <ul className="space-y-4">
         {sources.map((source: Source) => (
           <li key={source.id} className="flex items-center">
