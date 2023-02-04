@@ -7,16 +7,23 @@ export const useQuizzes = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
-  const { userId } = useStore();
+  const { userRefs } = useStore();
 
   // Fetch quizzes from Firestore
   const fetchQuizzes = async () => {
     try {
-      if (!userId) {
+      if (!userRefs) {
         return;
       }
+
+      if (!userRefs.firebaseId) {
+        return;
+      }
+
       let qs: any[] = [];
-      const quizzesQuery = query(collection(db, "users", userId, "quizzes"));
+      const quizzesQuery = query(
+        collection(db, "users", userRefs.firebaseId, "quizzes")
+      );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {
         console.log("No quizzes found.");
@@ -34,7 +41,7 @@ export const useQuizzes = () => {
 
   useEffect(() => {
     fetchQuizzes();
-  }, [userId]);
+  }, [JSON.stringify(userRefs)]);
 
   return { quizzes, loading, error };
 };

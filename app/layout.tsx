@@ -11,14 +11,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { setUserId } = useStore();
+  const { userRefs, setUserRefs } = useStore();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setUserId(user.uid);
+        // TODO: Get /api/users/:id and set it to userRefs.memreId
+        setUserRefs({
+          firebaseId: user.uid,
+          memreId: userRefs?.memreId || null,
+        });
       } else {
-        setUserId(null);
+        setUserRefs(null);
       }
     });
 

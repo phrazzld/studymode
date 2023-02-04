@@ -1,11 +1,12 @@
 import { create } from "zustand";
+import { UserRefs } from "./typings";
 
 type State = {
-  userId: string | null;
-  setUserId: (userId: string | null) => void;
+  userRefs: UserRefs | null;
+  setUserRefs: (userRefs: UserRefs | null) => void;
 };
 
 export const useStore = create<State>((set) => ({
-  userId: null,
-  setUserId: (userId: string | null) => set({ userId }),
+  userRefs: null,
+  setUserRefs: (userRefs: UserRefs | null) => set({ userRefs }),
 }));

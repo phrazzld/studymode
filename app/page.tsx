@@ -5,7 +5,7 @@ import { topics } from "../constants/topics";
 import { useStore } from "../store";
 
 export default function Home() {
-  const { userId } = useStore();
+  const { userRefs } = useStore();
 
   // Shuffle topics
   const shuffledTopics = topics.sort(() => 0.5 - Math.random());
@@ -55,7 +55,7 @@ export default function Home() {
 
       <div className="mt-10">
         <a
-          href={`${userId ? "/quizzes" : "/auth"}`}
+          href={`${userRefs?.firebaseId ? "/quizzes" : "/auth"}`}
           className="btn bg-blue-500 text-white py-4 px-4 rounded"
         >
           Get Started

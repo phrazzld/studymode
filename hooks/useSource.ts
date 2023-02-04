@@ -8,16 +8,26 @@ export const useSource = (sourceId: string) => {
   const [source, setSource] = useState<Source | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { userId } = useStore();
+  const { userRefs } = useStore();
 
   // Fetch sources from Firestore
   const fetchSource = async () => {
     try {
-      if (!userId) {
+      if (!userRefs) {
         return;
       }
 
-      const sourceRef = doc(db, "users", userId, "sources", sourceId);
+      if (!userRefs.firebaseId) {
+        return;
+      }
+
+      const sourceRef = doc(
+        db,
+        "users",
+        userRefs.firebaseId,
+        "sources",
+        sourceId
+      );
       const sourceSnapshot = await getDoc(sourceRef);
       if (!sourceSnapshot.exists()) {
         console.log("No source found.");
@@ -35,7 +45,7 @@ export const useSource = (sourceId: string) => {
 
   useEffect(() => {
     fetchSource();
-  }, [userId]);
+  }, [JSON.stringify(userRefs)]);
 
   return { source, loading, error };
 };

@@ -5,7 +5,7 @@ import { auth } from "../pages/_app";
 import { useStore } from "../store";
 
 export default function Header() {
-  const { userId } = useStore();
+  const { userRefs } = useStore();
 
   const signOut = async () => {
     await auth.signOut();
@@ -17,7 +17,7 @@ export default function Header() {
         studymode
       </Link>
       <div>
-        {!!userId ? (
+        {!!userRefs?.firebaseId ? (
           <>
             <Link href="/sources" className="text-xl text-white p-5">
               Sources

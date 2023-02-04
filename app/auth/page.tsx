@@ -8,16 +8,43 @@ import {
 import { useState } from "react";
 import { auth } from "../../pages/_app";
 import { useRouter } from "next/navigation";
+import { useStore } from "../../store";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setUserRefs } = useStore();
 
   const signUp = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUserCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      console.log("firebaseUserCredentials", firebaseUserCredentials);
+      const firebaseId = firebaseUserCredentials.user.uid;
+      console.log("firebaseId", firebaseId);
+      // TODO: Post user ID to /api/users
+      const createMemreUserResponse = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firebaseId,
+        }),
+      });
+      const createMemreUserResponseJson = await createMemreUserResponse.json();
+      console.log("createMemreUserResponseJson", createMemreUserResponseJson);
+      const memreId = createMemreUserResponseJson.data.id;
+      console.log("memreId", memreId);
+      setUserRefs({
+        firebaseId,
+        memreId,
+      });
       router.push("/");
     } catch (error: any) {
       setError(error.message);
@@ -27,6 +54,7 @@ export default function Auth() {
   const signIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // TODO: Get /api/users/:id and set it to userRefs.memreId
       router.push("/");
     } catch (error: any) {
       setError(error.message);
