@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useQuizzes } from "../../hooks/useQuizzes";
+import { Quiz } from "../../typings";
 
 export default function QuizzesList() {
   const { quizzes, loading, error } = useQuizzes();
+  const [pageLoading, setPageLoading] = useState(true);
 
   // Sort quizzes by createdAt
   // createdAt is an object containing seconds and nanoseconds
@@ -17,7 +20,20 @@ export default function QuizzesList() {
     return bCreatedAt - aCreatedAt;
   });
 
-  if (loading) {
+  // When loading changes, set a timer to update pageLoading in 1 second
+  // This is to prevent the page from flickering when loading is false
+  // but the page is still loading
+  // Clear the timeout if loading is false and quizzes.length > 0
+  useEffect(() => {
+    if (sortedQuizzes.length > 0) {
+      setPageLoading(false);
+    } else if (!loading && quizzes.length === 0) {
+      const timer = setTimeout(() => setPageLoading(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, JSON.stringify(quizzes)]);
+
+  if (pageLoading) {
     return <div>Loading...</div>;
   }
 
@@ -29,7 +45,7 @@ export default function QuizzesList() {
     <>
       {sortedQuizzes.length > 0 ? (
         <ul className="space-y-4">
-          {sortedQuizzes.map((quiz) => (
+          {sortedQuizzes.map((quiz: Quiz) => (
             <li key={quiz.id} className="flex items-center">
               <Link
                 href={`/quizzes/${quiz.id}`}

@@ -26,12 +26,20 @@ export default function Study() {
   const [quizIndex, setQuizIndex] = useState(0);
   const quiz = quizzes[quizIndex];
 
-  if (loading || !quiz) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (!quiz) {
+    return (
+      <div>
+        <h1>No quizzes found.</h1>
+      </div>
+    );
   }
 
   const submitAnswer = (answer: Answer) => {
