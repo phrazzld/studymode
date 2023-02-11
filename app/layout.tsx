@@ -1,7 +1,9 @@
 "use client";
 
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
-import { auth } from "../pages/_app";
+import { useCreateMemreUser } from "../hooks/useCreateMemreUser";
+import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import "../styles/globals.css";
 import Header from "./Header";
@@ -12,19 +14,45 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const { userRefs, setUserRefs } = useStore();
+  const { createMemreUser } = useCreateMemreUser();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // TODO: Get /api/users/:id and set it to userRefs.memreId
-        setUserRefs({
-          firebaseId: user.uid,
-          memreId: userRefs?.memreId || null,
-        });
-      } else {
+    const handleAuthStateChange = (user: any) => {
+      if (!user) {
         setUserRefs(null);
+        return;
       }
-    });
+
+      const getUserDoc = async () => {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          if (userDoc.data()?.memreId) {
+            setUserRefs({
+              firebaseId: user.uid,
+              memreId: userDoc.data()?.memreId,
+            });
+          } else {
+            setUserRefs({
+              firebaseId: user.uid,
+              memreId: await createMemreUser(),
+            });
+          }
+        } else {
+          setUserRefs({
+            firebaseId: user.uid,
+            memreId: await createMemreUser(),
+          });
+        }
+        setDoc(
+          doc(db, "users", user.uid),
+          { memreId: userRefs?.memreId },
+          { merge: true }
+        );
+      };
+      getUserDoc();
+    };
+
+    const unsubscribe = auth.onAuthStateChanged(handleAuthStateChange);
 
     return () => unsubscribe();
   }, []);

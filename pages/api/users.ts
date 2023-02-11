@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const MEMRE_API_URL = "https://learning-engine.p.rapidapi.com/memre_api/v1";
@@ -15,7 +14,7 @@ const handlePost = async (
   }
 
   const options = {
-    method: "GET",
+    method: "POST",
     url: `${MEMRE_API_URL}/users`,
     headers: {
       "X-RapidAPI-Key": process.env.MEMRE_API_KEY,
@@ -24,10 +23,25 @@ const handlePost = async (
   };
 
   try {
-    const response = await axios.request(options);
-    const user = response.data;
-    console.log("Memre user", user);
-    res.status(200).json(user);
+    // Create user in Memre with fetch
+    const response = await fetch(options.url, {
+      method: options.method,
+      headers: options.headers,
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      res.status(500).json({ message: data.error });
+      return;
+    }
+
+    if (!data.data.id) {
+      res.status(500).json({ message: "No user id returned" });
+      return;
+    }
+
+    res.status(200).json({ message: "User created", memreId: data.data.id });
   } catch (error: any) {
     res.status(500).json({ error });
   }
