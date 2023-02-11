@@ -40,7 +40,7 @@ const handlePost = async (
     // POST to /study with fetch
     const response = await fetch(options.url, {
       method: options.method,
-      headers: options.headers,
+      headers: options.headers as HeadersInit,
       body: JSON.stringify(options.body)
     });
 

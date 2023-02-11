@@ -26,7 +26,7 @@ const handlePost = async (
     // Create user in Memre with fetch
     const response = await fetch(options.url, {
       method: options.method,
-      headers: options.headers,
+      headers: options.headers as HeadersInit,
     });
 
     const data = await response.json();
