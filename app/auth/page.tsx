@@ -24,10 +24,7 @@ export default function Auth() {
         email,
         password
       );
-      console.log("firebaseUserCredentials", firebaseUserCredentials);
       const firebaseId = firebaseUserCredentials.user.uid;
-      console.log("firebaseId", firebaseId);
-      // TODO: Post user ID to /api/users
       const createMemreUserResponse = await fetch("/api/users", {
         method: "POST",
         headers: {
@@ -38,9 +35,7 @@ export default function Auth() {
         }),
       });
       const createMemreUserResponseJson = await createMemreUserResponse.json();
-      console.log("createMemreUserResponseJson", createMemreUserResponseJson);
       const memreId = createMemreUserResponseJson.data.id;
-      console.log("memreId", memreId);
       setUserRefs({
         firebaseId,
         memreId,
@@ -54,7 +49,6 @@ export default function Auth() {
   const signIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // TODO: Get /api/users/:id and set it to userRefs.memreId
       router.push("/");
     } catch (error: any) {
       setError(error.message);

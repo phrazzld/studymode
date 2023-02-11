@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQuizzes } from "../../hooks/useQuizzes";
 import { auth, db } from "../../pages/_app";
 import { Answer } from "../../typings";
+import { useStore } from '../../store';
 
 // What does the UX look like for study?
 // To start, I think we can just pull all of the quizzes for the current user
@@ -24,6 +25,7 @@ export default function Study() {
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [quizIndex, setQuizIndex] = useState(0);
+  const { userRefs } = useStore();
   const quiz = quizzes[quizIndex];
 
   if (loading || !quiz) {
@@ -46,6 +48,25 @@ export default function Study() {
       console.error("No user found");
       return;
     }
+
+    if (!userRefs) {
+      console.error("No user refs found");
+      return;
+    }
+
+    // POST to the LE API to save the presentation
+    fetch("/api/study", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firebaseId: userRefs.firebaseId,
+        memreItemId: quiz.memreId,
+        memreUserId: userRefs.memreId,
+        quizResult: answer.correct ? "Correct" : "Incorrect"
+      })
+    })
 
     addDoc(
       collection(
