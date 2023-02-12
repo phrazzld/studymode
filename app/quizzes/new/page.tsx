@@ -36,27 +36,38 @@ export default function CreateQuiz() {
           rows={5}
           cols={30}
           className="resize-none w-full p-2 border border-gray-300 rounded-lg"
-          placeholder="Enter your source content here..."
+          placeholder="Enter your source content here to generate quizzes from it"
           value={source}
           onChange={(e) => setSource(e.target.value)}
         />
-        <div className="mt-4">
-          <button
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg ${
-              loading ? "cursor-not-allowed opacity-50" : ""
+        <div className="mt-4 flex justify-between">
+          <div>
+            <button
+              className={`bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg ${
+                loading ? "cursor-not-allowed opacity-50" : ""
+              }`}
+              onClick={handleCreateQuizzes}
+              disabled={loading}
+            >
+              Generate Quizzes
+            </button>
+            <button
+              className="ml-4 text-blue-500 hover:text-blue-600 font-medium"
+              onClick={getRandomSourceContent}
+              disabled={loading}
+            >
+              Get Random Source
+            </button>
+          </div>
+          <div
+            className={`p-2 rounded-lg text-sm ${
+                source.length > 1000
+                ? "bg-red-100 text-red-500"
+                : "bg-gray-100 text-gray-500"
             }`}
-            onClick={handleCreateQuizzes}
-            disabled={loading}
           >
-            Generate Quizzes
-          </button>
-          <button
-            className="ml-4 text-blue-500 hover:text-blue-600 font-medium"
-            onClick={getRandomSourceContent}
-            disabled={loading}
-          >
-            Get Random Source
-          </button>
+            {source.length}/1000
+          </div>
         </div>
       </div>
       {(error || validationError) && (

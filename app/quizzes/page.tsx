@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useQuizzes } from "../../hooks/useQuizzes";
 import { useStore } from "../../store";
 import Study from "../Study";
@@ -12,12 +11,14 @@ export default function Quizzes() {
 
   return (
     <div className="p-4">
-      {studyMode ? (
+      {studyMode && !error && !loading ? (
         <Study quizzes={quizzes} />
       ) : (
         <>
           <div className="flex justify-between items-center mb-10">
             <h1 className="text-2xl font-medium">Quizzes</h1>
+
+            {error && <p className="text-red-500">{error}</p>}
 
             <div className="flex">
               <button
@@ -26,12 +27,6 @@ export default function Quizzes() {
               >
                 Study All
               </button>
-
-              <Link href="/quizzes/new">
-                <button className="bg-blue-500 text-white rounded-md py-2 px-4">
-                  Create Quiz
-                </button>
-              </Link>
             </div>
           </div>
 

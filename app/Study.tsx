@@ -83,6 +83,15 @@ export default function Study(props: StudyProps) {
     setQuizIndex(quizIndex + 1);
   };
 
+  if (quizzes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <p className="text-2xl font-bold text-gray-800">You're good!</p>
+
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
       <CloseButton onClick={() => setStudyMode(false)} />

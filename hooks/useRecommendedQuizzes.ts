@@ -7,7 +7,7 @@ export const useRecommendedQuizzes = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
-  const { userRefs } = useStore();
+  const { userRefs, studyMode } = useStore();
 
   // Fetch quizzes recommended by the Learning Engine
   const fetchQuizzes = async () => {
@@ -39,6 +39,12 @@ export const useRecommendedQuizzes = () => {
       const data = await response.json();
       const memreIds = data.data.data.map((item: any) => item.id);
 
+      if (memreIds.length === 0) {
+        console.log("No quizzes to study");
+        setQuizzes([]);
+        return;
+      }
+
       // Get quizzes from Firestore with memreIds from Learning Engine
       let qs: any[] = [];
       const quizzesQuery = query(
@@ -62,7 +68,7 @@ export const useRecommendedQuizzes = () => {
 
   useEffect(() => {
     fetchQuizzes();
-  }, [JSON.stringify(userRefs)]);
+  }, [JSON.stringify(userRefs), studyMode]);
 
   return { quizzes, loading, error };
 };

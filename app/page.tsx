@@ -7,6 +7,7 @@ import { useStore } from "../store";
 import Study from "./Study";
 
 // TODO: Stop flickering the unauth'd state before rendering the auth'd state
+// TODO: Refresh the recommended quizzes when the user finishes a study session
 export default function Home() {
   const { userRefs } = useStore();
 
@@ -22,6 +23,9 @@ const Profile = () => {
   const { quizzes, loading, error } = useRecommendedQuizzes();
 
   console.log("recommended quizzes:", quizzes);
+  console.log("studyMode:", studyMode);
+  console.log("loading:", loading);
+  console.log("error:", error);
 
   const study = () => {
     setStudyMode(true);
@@ -56,7 +60,12 @@ const Profile = () => {
                   Study {quizzes.length} Quizzes
                 </button>
               ) : (
-                <p className="text-gray-500">You're good!</p>
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-gray-500 text-xl">You're good!</p>
+                  <p className="text-gray-500">
+                    No quizzes to study. Create some more, or come back later.
+                  </p>
+                </div>
               )}
             </div>
           )}

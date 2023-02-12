@@ -19,6 +19,9 @@ export default function Header() {
       <div>
         {!!userRefs?.firebaseId ? (
           <>
+            <Link href="/quizzes/new" className="text-xl text-white p-5">
+              Create
+            </Link>
             <Link href="/sources" className="text-xl text-white p-5">
               Sources
             </Link>
