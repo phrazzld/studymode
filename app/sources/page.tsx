@@ -8,6 +8,8 @@ import { Source } from "../../typings";
 export default function Sources() {
   const { sources, loading, error } = useSources();
 
+  // TODO: Figure out how to fix issue where loading can be false
+  // but sources.length is briefly 0
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
