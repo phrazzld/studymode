@@ -1,15 +1,33 @@
 "use client";
 
+import { Oval } from "react-loader-spinner";
 import Typewriter from "typewriter-effect";
 import { topics } from "../constants/topics";
 import { useRecommendedQuizzes } from "../hooks/useRecommendedQuizzes";
 import { useStore } from "../store";
 import Study from "./Study";
 
-// TODO: Stop flickering the unauth'd state before rendering the auth'd state
-// TODO: Refresh the recommended quizzes when the user finishes a study session
 export default function Home() {
   const { userRefs } = useStore();
+
+  if (userRefs?.loaded === false) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="rgb(59 130 246)"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="rgb(59 130 246)"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
+  }
 
   if (userRefs?.firebaseId) {
     return <Profile />;
@@ -21,11 +39,6 @@ export default function Home() {
 const Profile = () => {
   const { studyMode, setStudyMode } = useStore();
   const { quizzes, loading, error } = useRecommendedQuizzes();
-
-  console.log("recommended quizzes:", quizzes);
-  console.log("studyMode:", studyMode);
-  console.log("loading:", loading);
-  console.log("error:", error);
 
   const study = () => {
     setStudyMode(true);
@@ -48,7 +61,18 @@ const Profile = () => {
           {error && <p className="text-red-500">{error}</p>}
 
           {loading ? (
-            <p>Loading...</p>
+            <Oval
+              height={40}
+              width={40}
+              color="rgb(59 130 246)"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+              ariaLabel="oval-loading"
+              secondaryColor="rgb(59 130 246)"
+              strokeWidth={2}
+              strokeWidthSecondary={2}
+            />
           ) : (
             <div className="flex flex-row items-center justify-center mt-10">
               {quizzes.length > 0 ? (
@@ -90,14 +114,8 @@ const Promo = () => {
             onInit={(typewriter) => {
               typewriter
                 .typeString("Hello World!")
-                .callFunction(() => {
-                  console.log("String typed out!");
-                })
                 .pauseFor(2500)
                 .deleteAll()
-                .callFunction(() => {
-                  console.log("All strings were deleted");
-                })
                 .start();
             }}
             options={{

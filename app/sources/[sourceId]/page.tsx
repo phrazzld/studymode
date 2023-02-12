@@ -2,6 +2,7 @@
 
 import { deleteDoc, doc } from "firebase/firestore";
 import Link from "next/link";
+import { Oval } from "react-loader-spinner";
 import { useSource } from "../../../hooks/useSource";
 import { useSourceQuizzes } from "../../../hooks/useSourceQuizzes";
 import { auth, db } from "../../../pages/_app";
@@ -43,7 +44,22 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="rgb(59 130 246)"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="rgb(59 130 246)"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
   }
 
   if (error) {

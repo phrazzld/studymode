@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Oval } from "react-loader-spinner";
 import { useSources } from "../../hooks/useSources";
 import { Source } from "../../typings";
 
@@ -8,7 +9,22 @@ export default function Sources() {
   const { sources, loading, error } = useSources();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="rgb(59 130 246)"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="rgb(59 130 246)"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
   }
 
   if (error) {

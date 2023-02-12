@@ -3,6 +3,7 @@
 import { doc, setDoc } from "firebase/firestore";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { Oval } from "react-loader-spinner";
 import { useQuiz } from "../../../../hooks/useQuiz";
 import { auth, db } from "../../../../pages/_app";
 import { Answer } from "../../../../typings";
@@ -68,7 +69,22 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="rgb(59 130 246)"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="rgb(59 130 246)"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
   }
 
   if (error) {

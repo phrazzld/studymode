@@ -39,6 +39,7 @@ export default function Auth() {
       setUserRefs({
         firebaseId,
         memreId,
+        loaded: true
       });
       router.push("/");
     } catch (error: any) {

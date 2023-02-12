@@ -12,12 +12,14 @@ export default function Header() {
   };
 
   return (
-    <div className="flex justify-between p-5 bg-blue-500">
+    <div className="flex justify-between items-center p-5 bg-blue-500">
       <Link href="/" className="text-2xl font-bold text-white">
         studymode
       </Link>
       <div>
-        {!!userRefs?.firebaseId ? (
+        {userRefs?.loaded === false ? (
+          <></>
+        ) : userRefs?.firebaseId ? (
           <>
             <Link href="/quizzes/new" className="text-xl text-white p-5">
               Create

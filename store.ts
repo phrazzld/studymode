@@ -9,7 +9,7 @@ type State = {
 };
 
 export const useStore = create<State>((set) => ({
-  userRefs: null,
+  userRefs: { firebaseId: null, memreId: null, loaded: false },
   setUserRefs: (userRefs: UserRefs | null) => set({ userRefs }),
   studyMode: false,
   setStudyMode: (studyMode: boolean) => set({ studyMode }),

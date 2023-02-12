@@ -31,10 +31,7 @@ export default function Study(props: StudyProps) {
   const { userRefs, setStudyMode } = useStore();
   const quiz = quizzes[quizIndex];
 
-  console.log("Study :: quizzes", quizzes);
-
   const submitAnswer = (answer: Answer) => {
-    console.log("Submitting answer", answer);
     setCorrect(answer.correct);
     if (answer.correct) {
       setCorrectCount(correctCount + 1);
