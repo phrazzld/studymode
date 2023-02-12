@@ -15,18 +15,20 @@ export default function Sources() {
     return <div>Error: {error}</div>;
   }
 
-  // TODO: Have like any style at all
-  // TODO: Enable studying all quizzes for a particular source
   return (
     <div className="px-4 py-4">
+      <h2 className="text-2xl font-medium mb-4">Sources</h2>
       <ul className="space-y-4">
         {sources.map((source: Source) => (
           <li key={source.id} className="flex items-center">
             <Link
               href={`/sources/${source.id}`}
-              className="text-blue-500 font-medium"
+              className="text-blue-500 font-medium hover:underline"
             >
-              {source.id}: {source.text.substring(0, 200)}...
+              <h3 className="text-lg font-medium">{source.id}</h3>
+              <p className="text-sm text-gray-700">
+                {source.text.substring(0, 200)}...
+              </p>
             </Link>
           </li>
         ))}

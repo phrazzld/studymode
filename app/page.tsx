@@ -21,18 +21,20 @@ const Profile = () => {
   const { studyMode, setStudyMode } = useStore();
   const { quizzes, loading, error } = useRecommendedQuizzes();
 
-  console.log("recommended quizzes:", quizzes)
+  console.log("recommended quizzes:", quizzes);
 
   const study = () => {
     setStudyMode(true);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <>
       {studyMode ? (
-        <Study quizzes={quizzes} />
+        <div className="flex flex-col p-6">
+          <Study quizzes={quizzes} />
+        </div>
       ) : (
-        <>
+        <div className="flex flex-col items-center justify-center h-screen">
           <div className="text-center">
             <h1 className="text-5xl font-bold text-gray-800 h-14 w-screen">
               Welcome to StudyMode!
@@ -51,16 +53,16 @@ const Profile = () => {
                   disabled={loading || error}
                   onClick={study}
                 >
-                  Study
+                  Study {quizzes.length} Quizzes
                 </button>
               ) : (
                 <p className="text-gray-500">You're good!</p>
               )}
             </div>
           )}
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
