@@ -15,10 +15,6 @@ studymode currently works best with relatively short text sources. We would very
 
 Copying and pasting the text you want to generate quizzes from can be a point of friction. Ideally you could just say "college level introductory chemistry" or "The Odyssey" and get a stack of high-quality quizzes.
 
-### Personalized review schedule
-
-Reviewing whatever quizzes you want whenever you want is fine, but ideally users would be prompted to review specific material only when they absolutely needed to in order to maximize retention. Instead of combing through piles of quizzes trying to remember what you need to remember, you should be able to take the quizzes we push you and be confident you'll remember everything you want.
-
 ### Take learning goals into account
 
 Given a blob of text, there's only so much we can do to determine what's important for you to remember and what's not. Seeding the quiz generation request with some learning goals could help improve the quality and relevance of generated quizzes from source materials.
@@ -29,4 +25,5 @@ Given a blob of text, there's only so much we can do to determine what's importa
 - Firebase
 - Tailwind CSS
 - OpenAI GPT API
+- Memre Learning Engine API
 - Deployed with Vercel
