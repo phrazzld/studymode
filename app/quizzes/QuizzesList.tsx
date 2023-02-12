@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Oval } from "react-loader-spinner";
 import { useQuizzes } from "../../hooks/useQuizzes";
+import { Quiz } from "../../typings";
 
 export default function QuizzesList() {
   const { quizzes, loading, error } = useQuizzes();
@@ -45,7 +46,7 @@ export default function QuizzesList() {
     <>
       {sortedQuizzes.length > 0 ? (
         <ul className="space-y-4">
-          {sortedQuizzes.map((quiz) => (
+          {sortedQuizzes.map((quiz: Quiz) => (
             <li key={quiz.id} className="flex items-center">
               <Link
                 href={`/quizzes/${quiz.id}`}
