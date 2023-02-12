@@ -8,16 +8,39 @@ import {
 import { useState } from "react";
 import { auth } from "../../pages/_app";
 import { useRouter } from "next/navigation";
+import { useStore } from "../../store";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setUserRefs } = useStore();
 
   const signUp = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUserCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const firebaseId = firebaseUserCredentials.user.uid;
+      const createMemreUserResponse = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firebaseId,
+        }),
+      });
+      const createMemreUserResponseJson = await createMemreUserResponse.json();
+      const memreId = createMemreUserResponseJson.data.id;
+      setUserRefs({
+        firebaseId,
+        memreId,
+        loaded: true
+      });
       router.push("/");
     } catch (error: any) {
       setError(error.message);

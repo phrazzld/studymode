@@ -1,7 +1,9 @@
 "use client";
 
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
-import { auth } from "../pages/_app";
+import { useCreateMemreUser } from "../hooks/useCreateMemreUser";
+import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import "../styles/globals.css";
 import Header from "./Header";
@@ -11,16 +13,57 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { setUserId } = useStore();
+  const { userRefs, setUserRefs } = useStore();
+  const { createMemreUser } = useCreateMemreUser();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
+    const handleAuthStateChange = (user: any) => {
+      if (!user) {
+        setUserRefs(null);
+        return;
       }
-    });
+
+      const getUserDoc = async () => {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          if (userDoc.data()?.memreId) {
+            setUserRefs({
+              firebaseId: user.uid,
+              memreId: userDoc.data()?.memreId,
+              loaded: true
+            });
+          } else {
+            const memreId = await createMemreUser();
+            setUserRefs({
+              firebaseId: user.uid,
+              memreId: memreId,
+              loaded: true
+            });
+            setDoc(
+              doc(db, "users", user.uid),
+              { memreId: memreId },
+              { merge: true }
+            );
+          }
+        } else {
+          const memreId = await createMemreUser();
+          setUserRefs({
+            firebaseId: user.uid,
+            memreId: memreId,
+            loaded: true
+          });
+          setDoc(
+            doc(db, "users", user.uid),
+            { memreId: memreId },
+            { merge: true }
+          );
+        }
+      };
+
+      getUserDoc();
+    };
+
+    const unsubscribe = auth.onAuthStateChanged(handleAuthStateChange);
 
     return () => unsubscribe();
   }, []);

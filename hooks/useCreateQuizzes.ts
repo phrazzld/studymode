@@ -56,7 +56,20 @@ export const useCreateQuizzes = (source: string) => {
           correct: a.correct === "true",
         }));
 
+        // Get memreId from /api/memre-items
+        // TODO: Elegantly handle rate limiting
+        const memreResponse = await fetch("/api/memre-items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ firebaseId: user.uid }),
+        });
+
+        const { memreId } = await memreResponse.json();
+
         await addDoc(collection(db, "users", user.uid, "quizzes"), {
+          memreId: memreId,
           sourceId: sourceDoc.id,
           question: quiz.question,
           answers,

@@ -1,5 +1,12 @@
+type UserRefs = {
+  firebaseId: string | null;
+  memreId: string | null;
+  loaded: boolean;
+};
+
 export type Quiz = {
   id: string;
+  memreId: string;
   question: string;
   answers: Answer[];
   sourceId: string;
