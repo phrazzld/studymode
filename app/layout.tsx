@@ -32,23 +32,31 @@ export default function RootLayout({
               memreId: userDoc.data()?.memreId,
             });
           } else {
+            const memreId = await createMemreUser();
             setUserRefs({
               firebaseId: user.uid,
-              memreId: await createMemreUser(),
+              memreId: memreId,
             });
+            setDoc(
+              doc(db, "users", user.uid),
+              { memreId: memreId },
+              { merge: true }
+            );
           }
         } else {
+          const memreId = await createMemreUser();
           setUserRefs({
             firebaseId: user.uid,
-            memreId: await createMemreUser(),
+            memreId: memreId,
           });
+          setDoc(
+            doc(db, "users", user.uid),
+            { memreId: memreId },
+            { merge: true }
+          );
         }
-        setDoc(
-          doc(db, "users", user.uid),
-          { memreId: userRefs?.memreId },
-          { merge: true }
-        );
       };
+
       getUserDoc();
     };
 

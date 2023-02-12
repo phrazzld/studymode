@@ -5,6 +5,7 @@ type UserRefs = {
 
 export type Quiz = {
   id: string;
+  memreId: string;
   question: string;
   answers: Answer[];
   sourceId: string;

@@ -25,9 +25,6 @@ export default function Header() {
             <Link href="/quizzes" className="text-xl text-white p-5">
               Quizzes
             </Link>
-            <Link href="/study" className="text-xl text-white p-5">
-              Study
-            </Link>
             <Link href="#" className="text-xl text-white p-5" onClick={signOut}>
               Sign Out
             </Link>

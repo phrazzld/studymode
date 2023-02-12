@@ -15,6 +15,8 @@ export default function Sources() {
     return <div>Error: {error}</div>;
   }
 
+  // TODO: Have like any style at all
+  // TODO: Enable studying all quizzes for a particular source
   return (
     <div className="px-4 py-4">
       <ul className="space-y-4">

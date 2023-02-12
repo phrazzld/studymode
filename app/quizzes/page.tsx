@@ -1,6 +1,7 @@
 import Link from "next/link";
 import QuizzesList from "./QuizzesList";
 
+// TODO: Enable studying all quizzes
 export default function Quizzes() {
   return (
     <div className="p-4">
