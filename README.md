@@ -25,5 +25,5 @@ Given a blob of text, there's only so much we can do to determine what's importa
 - Firebase
 - Tailwind CSS
 - OpenAI GPT API
-- Memre Learning Engine API
+- [Memre Learning Engine API](https://rapidapi.com/memre-memre-default/api/learning-engine)
 - Deployed with Vercel
