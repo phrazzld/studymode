@@ -89,6 +89,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!isValidOpenAiResponse(response)) {
     res.status(500).json({ error: "Failed to generate quiz" });
+    return;
   }
 
   const quizzes = JSON.parse(response.data.choices[0].text || "");

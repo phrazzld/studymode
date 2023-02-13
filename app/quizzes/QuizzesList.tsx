@@ -19,6 +19,7 @@ export default function QuizzesList() {
     return bCreatedAt - aCreatedAt;
   });
 
+  // TODO: Fix issue where loading is false and quizzes.length === 0 for a brief moment
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">

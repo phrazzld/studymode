@@ -10,6 +10,9 @@ import Study from "./Study";
 export default function Home() {
   const { userRefs } = useStore();
 
+  // TODO: Don't double spinner
+  //       - spinner while userRefs loads
+  //       - if logged in, second spinner for study button while quizzes load
   if (userRefs?.loaded === false) {
     return (
       <div className="flex justify-center items-center h-screen">
