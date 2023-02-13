@@ -35,7 +35,7 @@ export default function Auth() {
         }),
       });
       const createMemreUserResponseJson = await createMemreUserResponse.json();
-      const memreId = createMemreUserResponseJson.data.id;
+      const memreId = createMemreUserResponseJson.memreId
       setUserRefs({
         firebaseId,
         memreId,
@@ -43,6 +43,7 @@ export default function Auth() {
       });
       router.push("/");
     } catch (error: any) {
+      console.error(error)
       setError(error.message);
     }
   };
@@ -63,6 +64,12 @@ export default function Auth() {
       setError(error.message);
     }
   };
+
+  // If user is signed in, redirect to home page
+  if (auth.currentUser) {
+    console.warn("User is already signed in");
+    router.push("/");
+  }
 
   return (
     <div className="flex flex-col items-center py-8">
