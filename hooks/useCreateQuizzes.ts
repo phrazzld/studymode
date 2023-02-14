@@ -43,8 +43,10 @@ export const useCreateQuizzes = (source: string) => {
 
       // If the response is not ok, throw an error
       if (!response.ok) {
+        console.error(response)
         const errResponse = await response.json();
-        setError(errResponse.error);
+        console.error(errResponse);
+        setError(errResponse.error.toString());
         return;
       }
 
@@ -87,7 +89,7 @@ export const useCreateQuizzes = (source: string) => {
       setQuizzes(quizzes);
     } catch (err: any) {
       console.error(err);
-      setError(err);
+      setError(err.toString());
     } finally {
       setLoading(false);
     }
