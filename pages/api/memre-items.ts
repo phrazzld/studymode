@@ -6,7 +6,7 @@ const handlePost = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
-  const { firebaseId } = req.body;
+  const { firebaseId, memreUserId } = req.body;
 
   if (!firebaseId) {
     res.status(401).json({ message: "Unauthorized" });
@@ -23,7 +23,6 @@ const handlePost = async (
   };
 
   try {
-    // Create user in Memre with fetch
     const response = await fetch(options.url, {
       method: options.method,
       headers: options.headers as HeadersInit,
@@ -41,7 +40,38 @@ const handlePost = async (
       return;
     }
 
-    res.status(200).json({ message: "Item created", memreId: data.data.id });
+    const memreId = data.data.id;
+
+    // HACK: Create stub study session
+    // This is because the Learning Engine API has no association between the user and the item otherwise
+    // NOTE: This still doesn't make the new quizzes immediately recommended for study, which is ... not great
+    const studySessionOptions = {
+      method: "POST",
+      url: `${MEMRE_API_URL}/study`,
+      headers: {
+        "Content-Type": "application/json",
+        "X-RapidAPI-Key": process.env.MEMRE_API_KEY,
+        "X-RapidAPI-Host": "learning-engine.p.rapidapi.com",
+      },
+      body: {
+        item_id: memreId,
+        user_id: memreUserId,
+        quiz_result: 'Incorrect',
+        study_time_millis: 1
+      }
+    }
+
+    const studySessionResponse = await fetch(studySessionOptions.url, {
+      method: studySessionOptions.method,
+      headers: studySessionOptions.headers as HeadersInit,
+      body: JSON.stringify(studySessionOptions.body)
+    });
+
+    if (!studySessionResponse.ok) {
+      console.warn("Study session creation failed");
+    }
+
+    res.status(200).json({ message: "Item created", memreId: memreId });
   } catch (error: any) {
     res.status(500).json({ error });
   }
@@ -56,6 +86,6 @@ export default async function handler(
     case "POST":
       return handlePost(req, res);
     default:
-      res.status(500).json({ error: "Method not supported" });
+      res.status(405).json({ error: "Method Not Allowed" });
   }
 }

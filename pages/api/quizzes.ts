@@ -107,6 +107,6 @@ export default async function handler(
     case "POST":
       return handlePost(req, res);
     default:
-      res.status(500).json({ error: "Method not supported" });
+      res.status(405).json({ error: "Method Not Allowed" });
   }
 }

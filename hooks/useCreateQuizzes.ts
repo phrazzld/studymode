@@ -1,4 +1,5 @@
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { useStore } from '../store'
 import { useState } from "react";
 import { auth, db } from "../pages/_app";
 import { Quiz } from "../typings";
@@ -7,6 +8,7 @@ export const useCreateQuizzes = (source: string) => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { userRefs } = useStore();
 
   const createQuizzes = async () => {
     try {
@@ -48,6 +50,11 @@ export const useCreateQuizzes = (source: string) => {
 
       const { quizzes } = await response.json();
 
+      if (!userRefs?.memreId) {
+        console.error("No Memre user id");
+        return;
+      }
+
       // Save quizzes to users/quizzes subcollection
       quizzes.forEach(async (quiz: any) => {
         // Convert quiz.answers.map(a => a.correct) to booleans
@@ -63,7 +70,7 @@ export const useCreateQuizzes = (source: string) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ firebaseId: user.uid }),
+          body: JSON.stringify({ firebaseId: user.uid, memreUserId: userRefs.memreId }),
         });
 
         const { memreId } = await memreResponse.json();
