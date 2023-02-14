@@ -7,6 +7,7 @@ import { useSource } from "../../../hooks/useSource";
 import { useSourceQuizzes } from "../../../hooks/useSourceQuizzes";
 import { auth, db } from "../../../pages/_app";
 import { useStore } from "../../../store";
+import { shuffleArray } from "../../../utils";
 import Study from "../../Study";
 
 type PageProps = {
@@ -73,7 +74,7 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
   return (
     <div className="flex flex-col p-6">
       {studyMode ? (
-        <Study quizzes={quizzes} />
+        <Study quizzes={shuffleArray(quizzes)} />
       ) : (
         <>
           <h1 className="text-2xl font-medium mb-4">Source: {sourceId}</h1>

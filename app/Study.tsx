@@ -5,6 +5,7 @@ import { useState } from "react";
 import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Answer, Quiz } from "../typings";
+import { shuffleArray } from "../utils";
 
 // What does the UX look like for study?
 // To start, I think we can just pull all of the quizzes for the current user
@@ -84,9 +85,8 @@ export default function Study(props: StudyProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <p className="text-2xl font-bold text-gray-800">You're good!</p>
-
       </div>
-    )
+    );
   }
 
   return (
@@ -143,9 +143,11 @@ function AnswersList({
   correct: boolean | null;
   submitAnswer: (answer: Answer) => void;
 }) {
+  const answers = shuffleArray(quiz.answers);
+
   return (
     <ul className="flex flex-col">
-      {quiz.answers.map((answer: Answer) => (
+      {answers.map((answer: Answer) => (
         <li
           key={answer.text}
           className={`${correct === null ? "cursor-pointer" : ""} ${

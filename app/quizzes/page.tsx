@@ -1,5 +1,6 @@
 "use client";
 
+import { shuffleArray } from '../../utils';
 import { useQuizzes } from "../../hooks/useQuizzes";
 import { useStore } from "../../store";
 import Study from "../Study";
@@ -12,7 +13,7 @@ export default function Quizzes() {
   return (
     <div className="p-4">
       {studyMode && !error && !loading ? (
-        <Study quizzes={quizzes} />
+        <Study quizzes={shuffleArray(quizzes)} />
       ) : (
         <>
           <div className="flex justify-between items-center mb-10">

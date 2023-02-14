@@ -1,5 +1,6 @@
 "use client";
 
+import { shuffleArray } from '../utils';
 import { Oval } from "react-loader-spinner";
 import Typewriter from "typewriter-effect";
 import { topics } from "../constants/topics";
@@ -51,7 +52,7 @@ const Profile = () => {
     <>
       {studyMode ? (
         <div className="flex flex-col p-6">
-          <Study quizzes={quizzes} />
+          <Study quizzes={shuffleArray(quizzes)} />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-screen">
