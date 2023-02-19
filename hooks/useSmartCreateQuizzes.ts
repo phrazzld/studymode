@@ -4,13 +4,13 @@ import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Quiz } from "../typings";
 
-export const useCreateQuizzes = (source: string) => {
+export const useSmartCreateQuizzes = (prompt: string) => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { userRefs } = useStore();
 
-  const createQuizzes = async () => {
+  const smartCreateQuizzes = async () => {
     try {
       setError(null);
       setLoading(true);
@@ -24,6 +24,26 @@ export const useCreateQuizzes = (source: string) => {
       // Create user document if one does not already exist
       await getDoc(doc(db, "users", user.uid));
 
+      // Create source
+      const sourceResponse = await fetch("/api/sources", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input: prompt }),
+      });
+
+      // If the response is not ok, throw an error
+      if (!sourceResponse.ok) {
+        console.error(sourceResponse);
+        const errResponse = await sourceResponse.json();
+        console.error(errResponse);
+        setError(errResponse.error.toString());
+        return;
+      }
+
+      const { source } = await sourceResponse.json();
+
       // Save source to users/sources subcollection
       const sourceDoc = await addDoc(
         collection(db, "users", user.uid, "sources"),
@@ -33,6 +53,7 @@ export const useCreateQuizzes = (source: string) => {
         }
       );
 
+      // Create quizzes
       const response = await fetch("/api/quizzes", {
         method: "POST",
         headers: {
@@ -98,5 +119,5 @@ export const useCreateQuizzes = (source: string) => {
     }
   };
 
-  return { createQuizzes, quizzes, loading, error };
+  return { smartCreateQuizzes, quizzes, loading, error };
 };

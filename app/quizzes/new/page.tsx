@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { SAMPLE_SOURCE_CONTENT } from "../../../constants/sampleSourceContent";
 import { useCreateQuizzes } from "../../../hooks/useCreateQuizzes";
+import { useSmartCreateQuizzes } from '../../../hooks/useSmartCreateQuizzes'
 
 export default function CreateQuiz() {
   const [selectedOption, setSelectedOption] = useState<
@@ -30,28 +31,20 @@ export default function CreateQuiz() {
             Type or paste text, and we'll extract quizzes from it.
           </p>
         </div>
-        <div className="bg-gray-100 flex items-center justify-center flex-col p-8 rounded-lg shadow-lg">
+        <div
+          className={`${
+            selectedOption === "smart" ? "bg-blue-500 text-white" : "bg-white"
+          } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`}
+          onClick={() => handleOptionClick("smart")}
+        >
           <h2 className="text-2xl font-bold">Smart</h2>
-          <h3 className="text-xl text-gray-400 mb-4">Coming soon</h3>
           <p className="text-gray-700 mb-8">
             Explain what you want to learn and we'll do the rest.
           </p>
         </div>
-
-        {/* <div */}
-        {/*   className={`${ */}
-        {/*     selectedOption === "smart" ? "bg-blue-500 text-white" : "bg-white" */}
-        {/*   } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`} */}
-        {/*   onClick={() => handleOptionClick("smart")} */}
-        {/* > */}
-        {/*   <h2 className="text-2xl font-bold mb-4">Smart</h2> */}
-        {/*   <p className="text-gray-700 mb-8"> */}
-        {/*     Explain what you want to learn and we'll do the rest. */}
-        {/*   </p> */}
-        {/* </div> */}
       </div>
 
-      {selectedOption === "classic" && <ClassicForm />}
+      {selectedOption === "classic" ? <ClassicForm /> : <SmartForm />}
     </div>
   );
 }
@@ -120,6 +113,73 @@ function ClassicForm() {
             }`}
           >
             {source.length}/1000
+          </div>
+        </div>
+      </div>
+      {(error || validationError) && (
+        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg">
+          <p>An error occurred: {error || validationError}</p>
+        </div>
+      )}
+      {quizzes.length > 0 && (
+        <div className="mt-4 bg-green-100 border border-green-400 text-green-700 p-4 rounded-lg">
+          <p>Quizzes successfully created!</p>
+          <Link href="/quizzes">
+            <p className="text-blue-500 hover:text-blue-600 font-medium">
+              View Quizzes
+            </p>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SmartForm() {
+  const [prompt, setPrompt] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const { smartCreateQuizzes, quizzes, loading, error } = useSmartCreateQuizzes(prompt);
+
+  const handleCreateQuizzes = (): void => {
+    if (prompt.length > 1000) {
+      setValidationError("Prompt must be less than 1000 characters");
+    } else {
+      setValidationError("");
+      smartCreateQuizzes();
+    }
+  };
+
+  return (
+    <div className="mt-10">
+      <div>
+        <textarea
+          rows={2}
+          cols={110}
+          className="resize-none w-full p-2 border border-gray-300 rounded-lg shadow-lg"
+          placeholder="What would you like to learn?"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+        <div className="mt-4 flex justify-between">
+          <div>
+            <button
+              className={`bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ${
+                loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"
+              }`}
+              onClick={handleCreateQuizzes}
+              disabled={loading}
+            >
+              Generate Quizzes
+            </button>
+          </div>
+          <div
+            className={`p-2 rounded-lg text-sm ${
+              prompt.length > 1000
+                ? "bg-red-100 text-red-500"
+                : "bg-gray-100 text-gray-500"
+            }`}
+          >
+            {prompt.length}/1000
           </div>
         </div>
       </div>

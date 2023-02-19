@@ -52,12 +52,12 @@ const writeModerationError = (categories: ModerationCategories): string => {
 };
 
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { source } = req.body;
+  const { input } = req.body;
 
-
+  // Run input through moderation endpoint
   let flagged = false;
   const moderationResponse = await openai.createModeration({
-    input: source,
+    input,
   });
   if (moderationResponse.data.results[0].flagged) {
     console.warn("User input failed moderation check");
@@ -74,24 +74,25 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  const prompt = PROMPTS.GENERATE_QUIZ.replace("{INPUT}", source);
-
-  const completionConfig = {
+  // If we're making smart quizzes, create a source from the prompt first
+  const openaiConfig = {
     model: "text-davinci-003",
-    max_tokens: 2500,
-    temperature: 0.5,
-    prompt,
+    max_tokens: 1500,
+    temperature: 0.6,
+    prompt: PROMPTS.CREATE_SOURCE.replace("{INPUT}", input),
   };
-  const response = await openai.createCompletion(completionConfig);
+  const response = await openai.createCompletion(openaiConfig);
 
   if (!isValidOpenAiResponse(response)) {
-    res.status(500).json({ error: "Failed to generate quiz" });
+    res.status(500).json({ error: "Failed to generate source" });
     return;
   }
 
-  const quizzes = JSON.parse(response.data.choices[0].text || "");
+  const source = response.data.choices[0].text
 
-  res.status(200).json({ quizzes });
+  console.log("Generated source: ", source);
+
+  res.status(200).json({ source });
 };
 
 // TODO: Error handling
