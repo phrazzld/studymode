@@ -2,11 +2,15 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../pages/_app";
 import { useStore } from "../store";
+import { shuffleArray } from "../utils";
 
 export const useRecommendedQuizzes = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
+  const [totalRecommendedItemCount, setTotalRecommendedItemCount] = useState<
+    number | null
+  >(null);
   const { userRefs, studyMode } = useStore();
 
   // Fetch quizzes recommended by the Learning Engine
@@ -45,11 +49,23 @@ export const useRecommendedQuizzes = () => {
         return;
       }
 
+      // NOTE: Firestore IN query only supports ten items
+      //       Ten items is more than enough for a single session
+      //       Return the number of memreIds as number of items ready for review
+      //       But only return a shuffled ten for the recommended study session
+      setTotalRecommendedItemCount(memreIds.length);
+
+      // Shuffle the memreIds
+      const shuffledMemreIds = shuffleArray(memreIds);
+
+      // Slice the memreIds to ten
+      const tenMemreIds = shuffledMemreIds.slice(0, 10);
+
       // Get quizzes from Firestore with memreIds from Learning Engine
       let qs: any[] = [];
       const quizzesQuery = query(
         collection(db, "users", userRefs.firebaseId, "quizzes"),
-        where("memreId", "in", memreIds)
+        where("memreId", "in", tenMemreIds)
       );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {
@@ -60,7 +76,7 @@ export const useRecommendedQuizzes = () => {
       });
       setQuizzes(qs);
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -71,5 +87,5 @@ export const useRecommendedQuizzes = () => {
     fetchQuizzes();
   }, [JSON.stringify(userRefs), studyMode]);
 
-  return { quizzes, loading, error };
+  return { quizzes, totalRecommendedItemCount, loading, error };
 };

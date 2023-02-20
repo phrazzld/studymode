@@ -42,7 +42,9 @@ export default function Home() {
 
 const Profile = () => {
   const { studyMode, setStudyMode } = useStore();
-  const { quizzes, loading, error } = useRecommendedQuizzes();
+  const { quizzes, totalRecommendedItemCount, loading, error } = useRecommendedQuizzes();
+
+  console.log("totalRecommendedItemCount:", totalRecommendedItemCount)
 
   const study = () => {
     setStudyMode(true);
