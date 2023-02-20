@@ -5,6 +5,7 @@ import Typewriter from "typewriter-effect";
 import { topics } from "../constants/topics";
 import { useRecommendedQuizzes } from "../hooks/useRecommendedQuizzes";
 import { useStore } from "../store";
+import { Quiz } from "../typings";
 import { shuffleArray } from "../utils";
 import Study from "./Study";
 
@@ -41,26 +42,23 @@ export default function Home() {
 }
 
 const Profile = () => {
-  const { studyMode, setStudyMode } = useStore();
-  const { quizzes, totalRecommendedItemCount, loading, error } = useRecommendedQuizzes();
-
-  console.log("totalRecommendedItemCount:", totalRecommendedItemCount)
+  const { activeQuizzes, setActiveQuizzes } = useStore();
+  const { recommendedQuizzes, loading, error } =
+    useRecommendedQuizzes();
 
   const study = () => {
-    setStudyMode(true);
+    const qs = shuffleArray(recommendedQuizzes).map((quiz: Quiz) => ({
+      ...quiz,
+      answers: shuffleArray(quiz.answers),
+    }));
+    setActiveQuizzes(qs);
   };
-
-  // Shuffle quiz answers and quizzes
-  const shuffledQuizzes = quizzes.map((quiz) => ({
-    ...quiz,
-    answers: shuffleArray(quiz.answers),
-  }));
 
   return (
     <>
-      {studyMode ? (
+      {!!activeQuizzes && activeQuizzes?.length > 0 ? (
         <div className="flex flex-col p-6">
-          <Study quizzes={shuffleArray(shuffledQuizzes)} />
+          <Study />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-screen">
@@ -87,13 +85,13 @@ const Profile = () => {
             />
           ) : (
             <div className="flex flex-row items-center justify-center mt-10">
-              {quizzes.length > 0 ? (
+              {!!recommendedQuizzes && recommendedQuizzes.length > 0 ? (
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-10"
                   disabled={loading || error}
                   onClick={study}
                 >
-                  Study {quizzes.length} Quizzes
+                  Study {Math.min(10, recommendedQuizzes.length)} Quizzes
                 </button>
               ) : (
                 <div className="flex flex-col items-center justify-center">

@@ -1,16 +1,16 @@
 import { create } from "zustand";
-import { UserRefs } from "./typings";
+import { Quiz, UserRefs } from "./typings";
 
 type State = {
   userRefs: UserRefs | null;
   setUserRefs: (userRefs: UserRefs | null) => void;
-  studyMode: boolean;
-  setStudyMode: (studymode: boolean) => void;
+  activeQuizzes: Quiz[] | null;
+  setActiveQuizzes: (activeQuizzes: Quiz[] | null) => void;
 };
 
 export const useStore = create<State>((set) => ({
   userRefs: { firebaseId: null, memreId: null, loaded: false },
   setUserRefs: (userRefs: UserRefs | null) => set({ userRefs }),
-  studyMode: false,
-  setStudyMode: (studyMode: boolean) => set({ studyMode }),
+  activeQuizzes: null,
+  setActiveQuizzes: (activeQuizzes: Quiz[] | null) => set({ activeQuizzes }),
 }));

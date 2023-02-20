@@ -7,6 +7,7 @@ import { useSource } from "../../../hooks/useSource";
 import { useSourceQuizzes } from "../../../hooks/useSourceQuizzes";
 import { auth, db } from "../../../pages/_app";
 import { useStore } from "../../../store";
+import { Quiz } from "../../../typings";
 import { shuffleArray } from "../../../utils";
 import Study from "../../Study";
 
@@ -18,12 +19,8 @@ type PageProps = {
 
 export default function SourcePage({ params: { sourceId } }: PageProps) {
   const { source, loading, error } = useSource(sourceId);
-  const {
-    quizzes,
-    loading: loadingQuizzes,
-    error: errorQuizzes,
-  } = useSourceQuizzes(sourceId);
-  const { studyMode, setStudyMode } = useStore();
+  const { quizzes } = useSourceQuizzes(sourceId);
+  const { activeQuizzes, setActiveQuizzes } = useStore();
 
   const deleteSource = async () => {
     // TODO: Prompt for confirmation
@@ -63,6 +60,14 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
     );
   }
 
+  const studySourceQuizzes = (): void => {
+    const qs = shuffleArray(quizzes).map((quiz: Quiz) => ({
+      ...quiz,
+      answers: shuffleArray(quiz.answers),
+    }));
+    setActiveQuizzes(qs);
+  };
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -71,16 +76,10 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
     return <div>Source not found</div>;
   }
 
-  // Shuffle quiz answers and quizzes
-  const shuffledQuizzes = quizzes.map((quiz) => ({
-    ...quiz,
-    answers: shuffleArray(quiz.answers),
-  }));
-
   return (
     <div className="flex flex-col p-6">
-      {studyMode ? (
-        <Study quizzes={shuffleArray(shuffledQuizzes)} />
+      {!!activeQuizzes && activeQuizzes.length > 0 ? (
+        <Study />
       ) : (
         <>
           <h1 className="text-2xl font-medium mb-4">Source: {sourceId}</h1>
@@ -88,7 +87,7 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
 
           <div className="flex justify-between">
             <button
-              onClick={() => setStudyMode(true)}
+              onClick={studySourceQuizzes}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
             >
               Study {quizzes.length} Quizzes

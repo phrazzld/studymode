@@ -5,7 +5,6 @@ import { useState } from "react";
 import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Answer, Quiz } from "../typings";
-import { shuffleArray } from "../utils";
 
 // What does the UX look like for study?
 // To start, I think we can just pull all of the quizzes for the current user
@@ -20,16 +19,24 @@ import { shuffleArray } from "../utils";
 // Show a "next" button
 // If there are no more quizzes, show a "done" message as well as stats on how many were correct / incorrect
 
-interface StudyProps {
-  quizzes: Quiz[];
-}
-
-export default function Study(props: StudyProps) {
-  const { quizzes } = props;
+export default function Study() {
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [quizIndex, setQuizIndex] = useState(0);
-  const { userRefs, setStudyMode } = useStore();
+  const {
+    activeQuizzes: quizzes,
+    setActiveQuizzes: setQuizzes,
+    userRefs,
+  } = useStore();
+
+  if (!quizzes) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <p className="text-2xl font-bold text-gray-800">Loading...</p>
+      </div>
+    );
+  }
+
   const quiz = quizzes[quizIndex];
 
   const submitAnswer = (answer: Answer) => {
@@ -91,7 +98,7 @@ export default function Study(props: StudyProps) {
 
   return (
     <div className="flex flex-col">
-      <CloseButton onClick={() => setStudyMode(false)} />
+      <CloseButton onClick={() => setQuizzes(null)} />
       <h1 className="text-2xl font-bold py-2 px-4">Study</h1>
       <QuizHeader quiz={quiz} quizIndex={quizIndex} quizzes={quizzes} />
       <AnswersList quiz={quiz} correct={correct} submitAnswer={submitAnswer} />
@@ -101,7 +108,7 @@ export default function Study(props: StudyProps) {
         quizIndex={quizIndex}
         correct={correct}
         correctCount={correctCount}
-        onFinishClick={() => setStudyMode(false)}
+        onFinishClick={() => setQuizzes(null)}
         onNextClick={nextQuiz}
       />
     </div>
@@ -143,7 +150,7 @@ function AnswersList({
   correct: boolean | null;
   submitAnswer: (answer: Answer) => void;
 }) {
-  const answers = quiz.answers
+  const answers = quiz.answers;
 
   return (
     <ul className="flex flex-col">

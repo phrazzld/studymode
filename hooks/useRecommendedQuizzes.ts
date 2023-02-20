@@ -5,13 +5,13 @@ import { useStore } from "../store";
 import { shuffleArray } from "../utils";
 
 export const useRecommendedQuizzes = () => {
-  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [recommendedQuizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
   const [totalRecommendedItemCount, setTotalRecommendedItemCount] = useState<
     number | null
   >(null);
-  const { userRefs, studyMode } = useStore();
+  const { userRefs, activeQuizzes: quizzes } = useStore();
 
   // Fetch quizzes recommended by the Learning Engine
   const fetchQuizzes = async () => {
@@ -85,7 +85,7 @@ export const useRecommendedQuizzes = () => {
 
   useEffect(() => {
     fetchQuizzes();
-  }, [JSON.stringify(userRefs), studyMode]);
+  }, [JSON.stringify(userRefs), JSON.stringify(quizzes)]);
 
-  return { quizzes, totalRecommendedItemCount, loading, error };
+  return { recommendedQuizzes, totalRecommendedItemCount, loading, error };
 };

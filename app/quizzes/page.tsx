@@ -1,25 +1,28 @@
 "use client";
 
-import { shuffleArray } from '../../utils';
 import { useQuizzes } from "../../hooks/useQuizzes";
 import { useStore } from "../../store";
+import { Quiz } from "../../typings";
+import { shuffleArray } from "../../utils";
 import Study from "../Study";
 import QuizzesList from "./QuizzesList";
 
 export default function Quizzes() {
   const { quizzes, loading, error } = useQuizzes();
-  const { studyMode, setStudyMode } = useStore();
+  const { activeQuizzes, setActiveQuizzes } = useStore();
 
-  // Shuffle quiz answers and quizzes
-  const shuffledQuizzes = quizzes.map((quiz) => ({
-    ...quiz,
-    answers: shuffleArray(quiz.answers),
-  }));
+  const study = (): void => {
+    const qs = shuffleArray(quizzes).map((quiz: Quiz) => ({
+      ...quiz,
+      answers: shuffleArray(quiz.answers),
+    }));
+    setActiveQuizzes(qs);
+  };
 
   return (
     <div className="p-4">
-      {studyMode && !error && !loading ? (
-        <Study quizzes={shuffleArray(shuffledQuizzes)} />
+      {!!activeQuizzes && !error && !loading ? (
+        <Study />
       ) : (
         <>
           <div className="flex justify-between items-center mb-10">
@@ -29,7 +32,7 @@ export default function Quizzes() {
 
             <div className="flex">
               <button
-                onClick={() => setStudyMode(true)}
+                onClick={study}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
               >
                 Study All
