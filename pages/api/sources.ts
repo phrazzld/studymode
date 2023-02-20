@@ -90,8 +90,6 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const source = response.data.choices[0].text
 
-  console.log("Generated source: ", source);
-
   res.status(200).json({ source });
 };
 

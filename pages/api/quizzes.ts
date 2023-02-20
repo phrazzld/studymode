@@ -54,7 +54,6 @@ const writeModerationError = (categories: ModerationCategories): string => {
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const { source } = req.body;
 
-
   let flagged = false;
   const moderationResponse = await openai.createModeration({
     input: source,

@@ -221,33 +221,174 @@ function StudySummary({
   onFinishClick: () => void;
   onNextClick: () => void;
 }) {
-  if (quizIndex === quizzes.length - 1 && correct !== null) {
-    return (
-      <>
-        <p className="text-2xl font-bold my-4">Done!</p>
-        <p className="text-2xl font-bold my-4">
-          {correctCount} / {quizzes.length} correct
-        </p>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
-          onClick={onFinishClick}
-        >
-          Finish
-        </button>
-      </>
-    );
-  }
-
   if (correct !== null) {
     return (
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
-        onClick={onNextClick}
-      >
-        Next
-      </button>
+      <div>
+        <GenerateBridgeQuizzesButton quiz={quizzes[quizIndex]} />
+        {quizIndex === quizzes.length - 1 ? (
+          <>
+            <p className="text-2xl font-bold my-4">Done!</p>
+            <p className="text-2xl font-bold my-4">
+              {correctCount} / {quizzes.length} correct
+            </p>
+            <FinishButton onFinishClick={onFinishClick} />
+          </>
+        ) : (
+          <NextQuizButton onNextClick={onNextClick} />
+        )}
+      </div>
     );
   }
 
   return <></>;
+}
+
+function GenerateBridgeQuizzesButton({ quiz }: { quiz: Quiz }) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [finishedGenerating, setFinishedGenerating] = useState(false)
+  const { userRefs } = useStore();
+
+  const generateBridgeQuizzes = async () => {
+    try {
+      setIsGenerating(true);
+      if (!auth.currentUser) {
+        console.log("No user logged in");
+        return;
+      }
+
+      const user = auth.currentUser;
+      // Craft input for smart creating the source from the quiz
+      const correctAnswer = quiz.answers.find((answer) => answer.correct);
+      const input = `Help! I'm stuck on the following question: ${quiz.question}. I don't understand why ${correctAnswer} is correct. Can you help me better understand this?`;
+
+      // Create the source
+      const sourceResponse = await fetch("/api/sources", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input }),
+      });
+
+      // If the response is not ok, throw an error
+      if (!sourceResponse.ok) {
+        console.error(sourceResponse);
+        const errResponse = await sourceResponse.json();
+        console.error(errResponse);
+        return;
+      }
+
+      const { source } = await sourceResponse.json();
+
+      // Save source to users/sources subcollection
+      const sourceDoc = await addDoc(
+        collection(db, "users", user.uid, "sources"),
+        {
+          text: source,
+          createdAt: new Date(),
+        }
+      );
+
+      // Create quizzes
+      const response = await fetch("/api/quizzes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ source }),
+      });
+
+      // If the response is not ok, throw an error
+      if (!response.ok) {
+        console.error(response);
+        const errResponse = await response.json();
+        console.error(errResponse);
+        return;
+      }
+
+      const { quizzes } = await response.json();
+
+      if (!userRefs?.memreId) {
+        console.error("No Memre user id");
+        return;
+      }
+
+      // Save quizzes to users/quizzes subcollection
+      quizzes.forEach(async (quiz: any) => {
+        // Convert quiz.answers.map(a => a.correct) to booleans
+        const answers = quiz.answers.map((a: any) => ({
+          ...a,
+          correct: a.correct === "true",
+        }));
+
+        // Get memreId from /api/memre-items
+        // TODO: Elegantly handle rate limiting
+        const memreResponse = await fetch("/api/memre-items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebaseId: user.uid,
+            memreUserId: userRefs.memreId,
+          }),
+        });
+
+        const { memreId } = await memreResponse.json();
+
+        await addDoc(collection(db, "users", user.uid, "quizzes"), {
+          memreId: memreId,
+          sourceId: sourceDoc.id,
+          question: quiz.question,
+          answers,
+          createdAt: new Date(),
+        });
+      });
+      setFinishedGenerating(true)
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setIsGenerating(false)
+    }
+  };
+
+  if (finishedGenerating) {
+    return (
+      <div className="text-2xl font-bold my-4">
+        <p>Bridge quizzes generated!</p>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 mr-10 rounded-md transition-colors duration-300 ease-in-out"
+      onClick={generateBridgeQuizzes}
+      disabled={isGenerating}
+    >
+      Generate Bridge Quizzes
+    </button>
+  );
+}
+
+function FinishButton({ onFinishClick }: { onFinishClick: () => void }) {
+  return (
+    <button
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
+      onClick={onFinishClick}
+    >
+      Finish
+    </button>
+  );
+}
+
+function NextQuizButton({ onNextClick }: { onNextClick: () => void }) {
+  return (
+    <button
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
+      onClick={onNextClick}
+    >
+      Next
+    </button>
+  );
 }
