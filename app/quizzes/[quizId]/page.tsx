@@ -17,7 +17,10 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
   const { quiz, loading, error } = useQuiz(quizId);
 
   const deleteQuiz = async () => {
-    // TODO: Prompt for confirmation
+    const confirmation = confirm("Are you sure you want to delete this quiz?");
+    if (!confirmation) {
+      return;
+    }
 
     try {
       if (!auth.currentUser) {

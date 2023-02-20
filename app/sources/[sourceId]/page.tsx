@@ -23,7 +23,10 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
   const { activeQuizzes, setActiveQuizzes } = useStore();
 
   const deleteSource = async () => {
-    // TODO: Prompt for confirmation
+    const confirmed = confirm("Are you sure you want to delete this source?")
+    if (!confirmed) {
+      return;
+    }
 
     try {
       if (!auth.currentUser) {
