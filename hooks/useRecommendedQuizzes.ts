@@ -59,8 +59,9 @@ export const useRecommendedQuizzes = () => {
         qs.push({ id: snap.id, ...snap.data() });
       });
       setQuizzes(qs);
-    } catch (error) {
-      setError(error);
+    } catch (error: any) {
+      console.error(error)
+      setError(error.message);
     } finally {
       setLoading(false);
     }

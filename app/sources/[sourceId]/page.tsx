@@ -71,10 +71,16 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
     return <div>Source not found</div>;
   }
 
+  // Shuffle quiz answers and quizzes
+  const shuffledQuizzes = quizzes.map((quiz) => ({
+    ...quiz,
+    answers: shuffleArray(quiz.answers),
+  }));
+
   return (
     <div className="flex flex-col p-6">
       {studyMode ? (
-        <Study quizzes={shuffleArray(quizzes)} />
+        <Study quizzes={shuffleArray(shuffledQuizzes)} />
       ) : (
         <>
           <h1 className="text-2xl font-medium mb-4">Source: {sourceId}</h1>

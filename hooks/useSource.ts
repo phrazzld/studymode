@@ -37,7 +37,8 @@ export const useSource = (sourceId: string) => {
       const sourceData = sourceSnapshot.data();
       setSource(sourceData as Source);
     } catch (error: any) {
-      setError(error);
+      console.error(error)
+      setError(error.message);
     } finally {
       setLoading(false);
     }

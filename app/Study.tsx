@@ -143,7 +143,7 @@ function AnswersList({
   correct: boolean | null;
   submitAnswer: (answer: Answer) => void;
 }) {
-  const answers = shuffleArray(quiz.answers);
+  const answers = quiz.answers
 
   return (
     <ul className="flex flex-col">

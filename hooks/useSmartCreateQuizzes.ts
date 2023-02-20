@@ -67,7 +67,7 @@ export const useSmartCreateQuizzes = (prompt: string) => {
         console.error(response);
         const errResponse = await response.json();
         console.error(errResponse);
-        setError(errResponse.error.toString());
+        setError(errResponse.error.message);
         return;
       }
 
@@ -113,7 +113,7 @@ export const useSmartCreateQuizzes = (prompt: string) => {
       setQuizzes(quizzes);
     } catch (err: any) {
       console.error(err);
-      setError(err.toString());
+      setError(err.message);
     } finally {
       setLoading(false);
     }

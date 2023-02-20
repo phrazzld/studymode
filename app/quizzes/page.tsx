@@ -10,10 +10,16 @@ export default function Quizzes() {
   const { quizzes, loading, error } = useQuizzes();
   const { studyMode, setStudyMode } = useStore();
 
+  // Shuffle quiz answers and quizzes
+  const shuffledQuizzes = quizzes.map((quiz) => ({
+    ...quiz,
+    answers: shuffleArray(quiz.answers),
+  }));
+
   return (
     <div className="p-4">
       {studyMode && !error && !loading ? (
-        <Study quizzes={shuffleArray(quizzes)} />
+        <Study quizzes={shuffleArray(shuffledQuizzes)} />
       ) : (
         <>
           <div className="flex justify-between items-center mb-10">

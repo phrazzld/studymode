@@ -31,8 +31,10 @@ export const useCreateMemreUser = () => {
 
       // If the response is not ok, throw an error
       if (!response.ok) {
+        console.error(response);
         const errResponse = await response.json();
-        setError(errResponse.error);
+        console.error(errResponse);
+        setError(errResponse.error.message);
         return null;
       }
 
@@ -42,7 +44,7 @@ export const useCreateMemreUser = () => {
       return memreId
     } catch (err: any) {
       console.error(err);
-      setError(err);
+      setError(err.message);
       return null;
     } finally {
       setLoading(false);

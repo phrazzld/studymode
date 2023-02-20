@@ -1,11 +1,11 @@
 "use client";
 
-import { shuffleArray } from '../utils';
 import { Oval } from "react-loader-spinner";
 import Typewriter from "typewriter-effect";
 import { topics } from "../constants/topics";
 import { useRecommendedQuizzes } from "../hooks/useRecommendedQuizzes";
 import { useStore } from "../store";
+import { shuffleArray } from "../utils";
 import Study from "./Study";
 
 export default function Home() {
@@ -48,11 +48,17 @@ const Profile = () => {
     setStudyMode(true);
   };
 
+  // Shuffle quiz answers and quizzes
+  const shuffledQuizzes = quizzes.map((quiz) => ({
+    ...quiz,
+    answers: shuffleArray(quiz.answers),
+  }));
+
   return (
     <>
       {studyMode ? (
         <div className="flex flex-col p-6">
-          <Study quizzes={shuffleArray(quizzes)} />
+          <Study quizzes={shuffleArray(shuffledQuizzes)} />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-screen">
