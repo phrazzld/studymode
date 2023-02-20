@@ -2,25 +2,13 @@
 
 import { addDoc, collection, doc } from "firebase/firestore";
 import { useState } from "react";
+import { AiOutlineCloseCircle } from "react-icons/ai";
 import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Answer, Quiz } from "../typings";
 
-// What does the UX look like for study?
-// To start, I think we can just pull all of the quizzes for the current user
-// - Though ultimately we'll just be pulling quizzes the LE API says need review
-// - And perhaps enabling filtering by source / tag / etc
-// So we pull all the quizzes
-// Show the first one: question and answers
-// User selects an answer
-// If correct, show a "correct" message
-// If incorrect, show a "incorrect" message, and include a link to the quiz source
-// Save the result to the presentations subcollection under quizzes
-// Show a "next" button
-// If there are no more quizzes, show a "done" message as well as stats on how many were correct / incorrect
-
 export default function Study() {
-  const [correct, setCorrect] = useState<boolean | null>(null);
+  const [submittedAnswer, setSubmittedAnswer] = useState<Answer | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [quizIndex, setQuizIndex] = useState(0);
   const {
@@ -40,7 +28,7 @@ export default function Study() {
   const quiz = quizzes[quizIndex];
 
   const submitAnswer = (answer: Answer) => {
-    setCorrect(answer.correct);
+    setSubmittedAnswer(answer);
     if (answer.correct) {
       setCorrectCount(correctCount + 1);
     }
@@ -84,7 +72,7 @@ export default function Study() {
   };
 
   const nextQuiz = () => {
-    setCorrect(null);
+    setSubmittedAnswer(null);
     setQuizIndex(quizIndex + 1);
   };
 
@@ -101,12 +89,19 @@ export default function Study() {
       <CloseButton onClick={() => setQuizzes(null)} />
       <h1 className="text-2xl font-bold py-2 px-4">Study</h1>
       <QuizHeader quiz={quiz} quizIndex={quizIndex} quizzes={quizzes} />
-      <AnswersList quiz={quiz} correct={correct} submitAnswer={submitAnswer} />
-      <AnswerResult quiz={quiz} correct={correct} />
+      <AnswersList
+        quiz={quiz}
+        submittedAnswer={submittedAnswer}
+        submitAnswer={submitAnswer}
+      />
+      <AnswerResult
+        quiz={quiz}
+        correct={!!submittedAnswer ? submittedAnswer.correct : null}
+      />
       <StudySummary
         quizzes={quizzes}
         quizIndex={quizIndex}
-        correct={correct}
+        correct={!!submittedAnswer ? submittedAnswer.correct : null}
         correctCount={correctCount}
         onFinishClick={() => setQuizzes(null)}
         onNextClick={nextQuiz}
@@ -117,9 +112,9 @@ export default function Study() {
 
 function CloseButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="flex justify-end py-2 px-4">
+    <div className="flex justify-end p-2">
       <button className="text-gray-500 hover:text-gray-700" onClick={onClick}>
-        Close
+        <AiOutlineCloseCircle size={24} />
       </button>
     </div>
   );
@@ -143,26 +138,36 @@ function QuizHeader({
 
 function AnswersList({
   quiz,
-  correct,
+  submittedAnswer,
   submitAnswer,
 }: {
   quiz: Quiz;
-  correct: boolean | null;
+  submittedAnswer: Answer | null;
   submitAnswer: (answer: Answer) => void;
 }) {
   const answers = quiz.answers;
 
   return (
-    <ul className="flex flex-col">
+    <ul className="grid gap-2">
       {answers.map((answer: Answer) => (
         <li
           key={answer.text}
-          className={`${correct === null ? "cursor-pointer" : ""} ${
-            correct !== null && !answer.correct ? "border-red-500" : ""
+          className={`flex items-center cursor-pointer py-3 px-4 rounded-md ${
+            submittedAnswer !== null && answer.correct
+              ? "bg-green-500 text-white"
+              : "bg-white text-gray-800"
           } ${
-            correct !== null && answer.correct ? "border-green-500" : ""
-          } my-2 px-4 py-2 border rounded-md`}
-          onClick={() => correct === null && submitAnswer(answer)}
+            submittedAnswer !== null && submittedAnswer.text === answer.text
+              ? "ins-shadow"
+              : "shadow-lg"
+          } ${
+            submittedAnswer !== null &&
+            submittedAnswer.text === answer.text &&
+            !submittedAnswer.correct
+              ? "border-2 border-red-500"
+              : ""
+          }`}
+          onClick={() => submittedAnswer === null && submitAnswer(answer)}
         >
           {answer.text}
         </li>
@@ -182,19 +187,22 @@ function AnswerResult({
     return <></>;
   }
 
-  if (correct) {
-    return <p className="text-green-500">Correct!</p>;
-  }
-
   return (
-    <p className="text-red-500">
-      Incorrect!{" "}
+    <div
+      className={`flex items-center justify-center rounded-md py-10 px-4 text-lg font-bold ${
+        correct ? "text-green-600" : "text-red-600"
+      }`}
+    >
+      {correct ? "Correct!" : "Incorrect!"}
       {!!quiz.sourceId && (
-        <a href={`/sources/${quiz.sourceId}`} className="underline">
+        <a
+          href={`/sources/${quiz.sourceId}`}
+          className="ml-4 text-gray-500 underline hover:text-gray-400"
+        >
           See source
         </a>
       )}
-    </p>
+    </div>
   );
 }
 
@@ -216,12 +224,12 @@ function StudySummary({
   if (quizIndex === quizzes.length - 1 && correct !== null) {
     return (
       <>
-        <p className="text-2xl font-bold">Done!</p>
-        <p className="text-2xl font-bold">
+        <p className="text-2xl font-bold my-4">Done!</p>
+        <p className="text-2xl font-bold my-4">
           {correctCount} / {quizzes.length} correct
         </p>
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
           onClick={onFinishClick}
         >
           Finish
@@ -233,7 +241,7 @@ function StudySummary({
   if (correct !== null) {
     return (
       <button
-        className="bg-blue-500 text-white py-2 px-4 rounded"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
         onClick={onNextClick}
       >
         Next
