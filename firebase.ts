@@ -1,6 +1,6 @@
 import { addDoc, collection } from "firebase/firestore";
-import { Quiz } from "../typings";
-import { auth, db } from "./_app";
+import { Quiz } from "./typings";
+import { auth, db } from "./pages/_app";
 
 type CreateSourceResponse = {
   sourceText: string;

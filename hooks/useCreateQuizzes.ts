@@ -1,6 +1,6 @@
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
-import { generateQuizzes } from "../pages/firebase";
+import { generateQuizzes } from "../firebase";
 import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Quiz } from "../typings";
