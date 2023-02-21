@@ -3,6 +3,7 @@
 import { addDoc, collection, doc } from "firebase/firestore";
 import { useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
+import { createSource, generateQuizzes } from "../firebase";
 import { auth, db } from "../pages/_app";
 import { useStore } from "../store";
 import { Answer, Quiz } from "../typings";
@@ -224,7 +225,7 @@ function StudySummary({
   if (correct !== null) {
     return (
       <div>
-        <GenerateBridgeQuizzesButton quiz={quizzes[quizIndex]} />
+        <GenerateFollowUpQuizzesButton quiz={quizzes[quizIndex]} />
         {quizIndex === quizzes.length - 1 ? (
           <>
             <p className="text-2xl font-bold my-4">Done!</p>
@@ -243,12 +244,12 @@ function StudySummary({
   return <></>;
 }
 
-function GenerateBridgeQuizzesButton({ quiz }: { quiz: Quiz }) {
+function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [finishedGenerating, setFinishedGenerating] = useState(false)
+  const [finishedGenerating, setFinishedGenerating] = useState(false);
   const { userRefs } = useStore();
 
-  const generateBridgeQuizzes = async () => {
+  const generateFollowUpQuizzes = async (followUpType: "easy" | "hard") => {
     try {
       setIsGenerating(true);
       if (!auth.currentUser) {
@@ -256,118 +257,57 @@ function GenerateBridgeQuizzesButton({ quiz }: { quiz: Quiz }) {
         return;
       }
 
-      const user = auth.currentUser;
+      // Throw an error if userRefs or userRefs.memreId is null
+      if (!userRefs?.memreId) {
+        throw new Error("No Memre user id");
+      }
+
       // Craft input for smart creating the source from the quiz
       const correctAnswer = quiz.answers.find((answer) => answer.correct);
-      const input = `Help! I'm stuck on the following question: ${quiz.question}. I don't understand why ${correctAnswer} is correct. Can you help me better understand this?`;
+      const input =
+        followUpType === "easy"
+          ? `Help! I'm stuck on the following question: "${quiz.question}". I don't understand why "${correctAnswer}" is correct. Can you help me better understand this?`
+          : `This quiz is too easy! I already know the answer to this question way too well: "${quiz.question}". Can you give me some more challenging material that expand my knowledge of this subject?`;
 
-      // Create the source
-      const sourceResponse = await fetch("/api/sources", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ input }),
-      });
-
-      // If the response is not ok, throw an error
-      if (!sourceResponse.ok) {
-        console.error(sourceResponse);
-        const errResponse = await sourceResponse.json();
-        console.error(errResponse);
-        return;
-      }
-
-      const { source } = await sourceResponse.json();
-
-      // Save source to users/sources subcollection
-      const sourceDoc = await addDoc(
-        collection(db, "users", user.uid, "sources"),
-        {
-          text: source,
-          createdAt: new Date(),
-        }
-      );
+      // Create source
+      const { sourceText, sourceDoc } = await createSource(input);
 
       // Create quizzes
-      const response = await fetch("/api/quizzes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ source }),
-      });
+      await generateQuizzes(sourceText, sourceDoc, userRefs.memreId);
 
-      // If the response is not ok, throw an error
-      if (!response.ok) {
-        console.error(response);
-        const errResponse = await response.json();
-        console.error(errResponse);
-        return;
-      }
-
-      const { quizzes } = await response.json();
-
-      if (!userRefs?.memreId) {
-        console.error("No Memre user id");
-        return;
-      }
-
-      // Save quizzes to users/quizzes subcollection
-      quizzes.forEach(async (quiz: any) => {
-        // Convert quiz.answers.map(a => a.correct) to booleans
-        const answers = quiz.answers.map((a: any) => ({
-          ...a,
-          correct: a.correct === "true",
-        }));
-
-        // Get memreId from /api/memre-items
-        // TODO: Elegantly handle rate limiting
-        const memreResponse = await fetch("/api/memre-items", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            firebaseId: user.uid,
-            memreUserId: userRefs.memreId,
-          }),
-        });
-
-        const { memreId } = await memreResponse.json();
-
-        await addDoc(collection(db, "users", user.uid, "quizzes"), {
-          memreId: memreId,
-          sourceId: sourceDoc.id,
-          question: quiz.question,
-          answers,
-          createdAt: new Date(),
-        });
-      });
-      setFinishedGenerating(true)
+      setFinishedGenerating(true);
     } catch (err: any) {
       console.error(err);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
   };
 
   if (finishedGenerating) {
     return (
       <div className="text-2xl font-bold my-4">
-        <p>Bridge quizzes generated!</p>
+        <p>Follow-up quizzes generated!</p>
       </div>
-    )
+    );
   }
 
   return (
-    <button
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 mr-10 rounded-md transition-colors duration-300 ease-in-out"
-      onClick={generateBridgeQuizzes}
-      disabled={isGenerating}
-    >
-      Generate Bridge Quizzes
-    </button>
+    <div className="flex flex-row items-center">
+      <button
+        className="bg-sky-400 hover:bg-sky-700 text-white font-bold py-3 px-6 mr-10 rounded-md transition-colors duration-300 ease-in-out"
+        onClick={() => generateFollowUpQuizzes("easy")}
+        disabled={isGenerating}
+      >
+        Autogenerate Easier Quizzes
+      </button>
+      <button
+        className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
+        onClick={() => generateFollowUpQuizzes("hard")}
+        disabled={isGenerating}
+      >
+        Autogenerate Harder Quizzes
+      </button>
+    </div>
   );
 }
 
