@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai";
 import { PROMPTS } from "../../prompts";
 
 const configuration = new Configuration({
@@ -10,12 +10,6 @@ const openai = new OpenAIApi(configuration);
 
 const isValidOpenAiResponse = (response: any) => {
   if (response.status !== 200) {
-    return false;
-  }
-  if (!response.data.choices[0]) {
-    return false;
-  }
-  if (!response.data.choices[0].text) {
     return false;
   }
   return true;
@@ -54,43 +48,61 @@ const writeModerationError = (categories: ModerationCategories): string => {
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const { input } = req.body;
 
-  // Run input through moderation endpoint
-  let flagged = false;
-  const moderationResponse = await openai.createModeration({
-    input,
-  });
-  if (moderationResponse.data.results[0].flagged) {
-    console.warn("User input failed moderation check");
-    flagged = true;
-  }
-
-  // Return an error if the input is flagged
-  if (flagged) {
-    res.status(400).json({
-      error: writeModerationError(
-        moderationResponse.data.results[0].categories
-      ),
+  try {
+    // Run input through moderation endpoint
+    let flagged = false;
+    const moderationResponse = await openai.createModeration({
+      input,
     });
-    return;
-  }
+    if (moderationResponse.data.results[0].flagged) {
+      console.warn("User input failed moderation check");
+      flagged = true;
+    }
 
-  // If we're making smart quizzes, create a source from the prompt first
-  const openaiConfig = {
-    model: "text-davinci-003",
-    max_tokens: 1500,
-    temperature: 0.6,
-    prompt: PROMPTS.CREATE_SOURCE.replace("{INPUT}", input),
-  };
-  const response = await openai.createCompletion(openaiConfig);
+    // Return an error if the input is flagged
+    if (flagged) {
+      res.status(400).json({
+        error: writeModerationError(
+          moderationResponse.data.results[0].categories
+        ),
+      });
+      return;
+    }
 
-  if (!isValidOpenAiResponse(response)) {
+    // If we're making smart quizzes, create a source from the prompt first
+    const openaiConfig: CreateChatCompletionRequest = {
+      model: "gpt-3.5-turbo",
+      max_tokens: 800,
+      temperature: 0.6,
+      frequency_penalty: 0.5,
+      presence_penalty: 0.5,
+      messages: [
+        {
+          role: "system",
+          content: PROMPTS.SYSTEM_INIT,
+        },
+        {
+          role: "user",
+          content: PROMPTS.CREATE_SOURCE.replace("{INPUT}", input),
+        },
+      ],
+    };
+    const response = await openai.createChatCompletion(openaiConfig);
+
+    if (!isValidOpenAiResponse(response)) {
+      res.status(500).json({ error: "Failed to generate source" });
+      return;
+    }
+
+    const source = response.data.choices[0].message?.content.trim();
+
+    res.status(200).json({ source });
+  } catch (err: any) {
+    console.error("Error generating source");
+    console.error(err);
     res.status(500).json({ error: "Failed to generate source" });
     return;
   }
-
-  const source = response.data.choices[0].text
-
-  res.status(200).json({ source });
 };
 
 // TODO: Error handling

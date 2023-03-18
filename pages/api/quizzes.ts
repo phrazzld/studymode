@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai";
 import { PROMPTS } from "../../prompts";
 
 const configuration = new Configuration({
@@ -10,12 +10,6 @@ const openai = new OpenAIApi(configuration);
 
 const isValidOpenAiResponse = (response: any) => {
   if (response.status !== 200) {
-    return false;
-  }
-  if (!response.data.choices[0]) {
-    return false;
-  }
-  if (!response.data.choices[0].text) {
     return false;
   }
   return true;
@@ -54,43 +48,65 @@ const writeModerationError = (categories: ModerationCategories): string => {
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const { source } = req.body;
 
-  let flagged = false;
-  const moderationResponse = await openai.createModeration({
-    input: source,
-  });
-  if (moderationResponse.data.results[0].flagged) {
-    console.warn("User input failed moderation check");
-    flagged = true;
-  }
-
-  // Return an error if the input is flagged
-  if (flagged) {
-    res.status(400).json({
-      error: writeModerationError(
-        moderationResponse.data.results[0].categories
-      ),
+  try {
+    let flagged = false;
+    const moderationResponse = await openai.createModeration({
+      input: source,
     });
-    return;
-  }
+    if (moderationResponse.data.results[0].flagged) {
+      console.warn("User input failed moderation check");
+      flagged = true;
+    }
 
-  const prompt = PROMPTS.GENERATE_QUIZ.replace("{INPUT}", source);
+    // Return an error if the input is flagged
+    if (flagged) {
+      res.status(400).json({
+        error: writeModerationError(
+          moderationResponse.data.results[0].categories
+        ),
+      });
+      return;
+    }
 
-  const completionConfig = {
-    model: "text-davinci-003",
-    max_tokens: 2500,
-    temperature: 0.5,
-    prompt,
-  };
-  const response = await openai.createCompletion(completionConfig);
+    const prompt = PROMPTS.GENERATE_QUIZ.replace("{INPUT}", source);
 
-  if (!isValidOpenAiResponse(response)) {
+    const completionConfig: CreateChatCompletionRequest = {
+      model: "gpt-3.5-turbo",
+      max_tokens: 3000,
+      temperature: 0.6,
+      messages: [
+        {
+          role: "system",
+          content: PROMPTS.SYSTEM_INIT,
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+        {
+          role: "assistant",
+          content: "Sure! Here's the JSON:",
+        },
+      ],
+    };
+    const response = await openai.createChatCompletion(completionConfig);
+
+    if (!isValidOpenAiResponse(response)) {
+      res.status(500).json({ error: "Failed to generate quiz" });
+      return;
+    }
+
+    const quizzes = JSON.parse(
+      response.data.choices[0].message?.content.trim() || ""
+    );
+
+    res.status(200).json({ quizzes });
+  } catch (err: any) {
+    console.error("Error generating quiz");
+    console.error(err);
     res.status(500).json({ error: "Failed to generate quiz" });
     return;
   }
-
-  const quizzes = JSON.parse(response.data.choices[0].text || "");
-
-  res.status(200).json({ quizzes });
 };
 
 // TODO: Error handling

@@ -1,6 +1,7 @@
 // 1326 characters, 486 tokens
 export const PROMPTS = {
-  GENERATE_QUIZ: `You are a personal tutor. Turn the text below into one or more multiple choice quizzes based on the text. Mark the correct answer for each quiz, and format your response as A JSON object. Every quiz should have at least one incorrect answer.
+  SYSTEM_INIT: `You are an expert personal tutor. You create study materials, including essays and quizzes, for students from a diverse range of backgrounds and with a wide range of capabilities. The study materials you produce are engaging, deep, thoughtful, creative, and accessible. You always aim to satisfy the curiosities of your students with excellence.`,
+  GENERATE_QUIZ: `Turn the text below into one or more multiple choice quizzes based on the text. Mark the correct answer for each quiz, and format your response as A JSON object. Every quiz should have at least one incorrect answer.
 
 TEXT:
 France is a country in Europe. Its capital is Paris, which is known for its iconic landmarks such as the Eiffel Tower and the Louvre Museum. The official language of France is French.
@@ -39,15 +40,11 @@ QUIZZES JSON:
 TEXT:
 """
 {INPUT}
-"""
+"""`,
+  CREATE_SOURCE: `Write an extensive essay based on the input below. Extract and expand upon the most important things to know about the subject. Be creative, detailed, highly specific, and thorough.
 
-QUIZZES JSON:`,
-  CREATE_SOURCE: `You are a personal tutor. Your student is asking you to help him learn something. Write an extensive essay to help your student learn the most important parts of what they're asking about. Be thorough, specific, and use great detail.
-
-STUDENT:
+INPUT:
 """
 {INPUT}
-"""
-
-ESSAY:`
+"""`
 };
