@@ -1,10 +1,12 @@
 "use client";
 
+import { SAMPLE_SOURCE_CONTENT } from "@/constants/sampleSourceContent";
+import { useCreateQuizzes } from "@/hooks/useCreateQuizzes";
+import { useSmartCreateQuizzes } from "@/hooks/useSmartCreateQuizzes";
 import Link from "next/link";
 import { useState } from "react";
-import { SAMPLE_SOURCE_CONTENT } from "../../../constants/sampleSourceContent";
-import { useCreateQuizzes } from "../../../hooks/useCreateQuizzes";
-import { useSmartCreateQuizzes } from '../../../hooks/useSmartCreateQuizzes'
+import { BsLightbulb } from "react-icons/bs";
+import { GrTextAlignFull } from "react-icons/gr";
 
 export default function CreateQuiz() {
   const [selectedOption, setSelectedOption] = useState<
@@ -15,19 +17,21 @@ export default function CreateQuiz() {
     setSelectedOption(option);
   };
 
-  // TODO: Better "generating..." state / UX
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold mb-8">Create</h1>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-screen-lg">
+    <div className="flex flex-col items-center min-h-screen p-4">
+      <h1 className="text-4xl font-bold my-8">Create Quizzes</h1>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-screen-lg my-8">
         <div
           className={`${
             selectedOption === "classic" ? "bg-blue-500 text-white" : "bg-white"
           } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`}
           onClick={() => handleOptionClick("classic")}
         >
-          <h2 className="text-2xl font-bold mb-4">Classic</h2>
-          <p className="text-gray-700 mb-8">
+          <div className="flex flex-row items-center justify-center mb-4">
+            <GrTextAlignFull className="text-3xl mr-3" />
+            <h2 className="text-2xl font-bold">Classic</h2>
+          </div>
+          <p className="text-gray-700">
             Type or paste text, and we'll extract quizzes from it.
           </p>
         </div>
@@ -37,19 +41,31 @@ export default function CreateQuiz() {
           } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`}
           onClick={() => handleOptionClick("smart")}
         >
-          <h2 className="text-2xl font-bold">Smart</h2>
-          <p className="text-gray-700 mb-8">
+          <div className="flex flex-row items-center justify-center mb-4">
+            <BsLightbulb className="text-3xl mr-3" />
+            <h2 className="text-2xl font-bold">Smart</h2>
+          </div>
+          <p className="text-gray-700">
             Explain what you want to learn and we'll do the rest.
           </p>
         </div>
       </div>
 
-      {selectedOption === "classic" ? <ClassicForm /> : <SmartForm />}
+      {!!selectedOption && (
+        <div className="w-full max-w-screen-lg">
+          {selectedOption === "classic" ? (
+            <ClassicForm />
+          ) : selectedOption === "smart" ? (
+            <SmartForm />
+          ) : (
+            <></>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// TODO: Obviate need for character limit enforcement
 function ClassicForm() {
   const [source, setSource] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -72,48 +88,43 @@ function ClassicForm() {
   };
 
   return (
-    <div className="mt-10">
-      <div>
-        <textarea
-          rows={10}
-          cols={110}
-          className="resize-none w-full p-2 border border-gray-300 rounded-lg shadow-lg"
-          placeholder="Enter your source content here to generate quizzes from it"
-          value={source}
-          onChange={(e) => setSource(e.target.value)}
-        />
-        <div className="mt-4 flex justify-between">
-          <div>
-            <button
-              className={`bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ${
-                loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"
-              }`}
-              onClick={handleCreateQuizzes}
-              disabled={loading}
-            >
-              Generate Quizzes
-            </button>
-            <button
-              className={`ml-4 text-blue-500 font-medium ${
-                loading
-                  ? "cursor-not-allowed opacity-50}"
-                  : "hover:text-blue-600"
-              }`}
-              onClick={getRandomSourceContent}
-              disabled={loading}
-            >
-              Get example
-            </button>
-          </div>
-          <div
-            className={`p-2 rounded-lg text-sm ${
-              source.length > 1000
-                ? "bg-red-100 text-red-500"
-                : "bg-gray-100 text-gray-500"
+    <div className="bg-white p-8 rounded-lg shadow-md">
+      <textarea
+        rows={10}
+        className="resize-none w-full p-2 border border-gray-300 rounded-lg shadow-lg mb-4"
+        placeholder="Enter your source content here to generate quizzes from it"
+        value={source}
+        onChange={(e) => setSource(e.target.value)}
+      />
+      <div className="flex justify-between items-center">
+        <div>
+          <button
+            className={`bg-blue-500 text-white font-medium py-2 px-4 rounded-lg mr-4 ${
+              loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"
             }`}
+            onClick={handleCreateQuizzes}
+            disabled={loading}
           >
-            {source.length}/1000
-          </div>
+            Generate Quizzes
+          </button>
+          <button
+            className={`text-blue-500 font-medium ${
+              loading ? "cursor-not-allowed opacity-50}" : "hover:text-blue-600"
+            }`}
+            onClick={getRandomSourceContent}
+            disabled={loading}
+          >
+            Get example
+          </button>
+        </div>
+        <div
+          className={`p-2 rounded-lg text-sm ${
+            source.length > 1000
+              ? "bg-red-100 text-red-500"
+              : "bg-gray-100 text-gray-500"
+          }`}
+        >
+          {source.length}/1000
         </div>
       </div>
       {(error || validationError) && (
@@ -138,7 +149,8 @@ function ClassicForm() {
 function SmartForm() {
   const [prompt, setPrompt] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
-  const { smartCreateQuizzes, quizzes, loading, error } = useSmartCreateQuizzes(prompt);
+  const { smartCreateQuizzes, quizzes, loading, error } =
+    useSmartCreateQuizzes(prompt);
 
   const handleCreateQuizzes = (): void => {
     if (prompt.length > 1000) {
@@ -150,37 +162,32 @@ function SmartForm() {
   };
 
   return (
-    <div className="mt-10">
-      <div>
-        <textarea
-          rows={2}
-          cols={110}
-          className="resize-none w-full p-2 border border-gray-300 rounded-lg shadow-lg"
-          placeholder="What would you like to learn?"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <div className="mt-4 flex justify-between">
-          <div>
-            <button
-              className={`bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ${
-                loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"
-              }`}
-              onClick={handleCreateQuizzes}
-              disabled={loading}
-            >
-              Generate Quizzes
-            </button>
-          </div>
-          <div
-            className={`p-2 rounded-lg text-sm ${
-              prompt.length > 1000
-                ? "bg-red-100 text-red-500"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            {prompt.length}/1000
-          </div>
+    <div className="bg-white p-8 rounded-lg shadow-md">
+      <textarea
+        rows={2}
+        className="resize-none w-full p-2 border border-gray-300 rounded-lg shadow-lg mb-4"
+        placeholder="What would you like to learn?"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+      />
+      <div className="flex justify-between items-center">
+        <button
+          className={`bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ${
+            loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"
+          }`}
+          onClick={handleCreateQuizzes}
+          disabled={loading}
+        >
+          Generate Quizzes
+        </button>
+        <div
+          className={`p-2 rounded-lg text-sm ${
+            prompt.length > 1000
+              ? "bg-red-100 text-red-500"
+              : "bg-gray-100 text-gray-500"
+          }`}
+        >
+          {prompt.length}/1000
         </div>
       </div>
       {(error || validationError) && (
