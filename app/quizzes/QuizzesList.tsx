@@ -1,16 +1,14 @@
 "use client";
 
+import { useQuizzes } from "@/hooks/useQuizzes";
+import { Quiz } from "@/typings";
+import { formatDate } from "@/utils";
 import Link from "next/link";
 import { Oval } from "react-loader-spinner";
-import { useQuizzes } from "../../hooks/useQuizzes";
-import { Quiz } from "../../typings";
 
 export default function QuizzesList() {
   const { quizzes, loading, error } = useQuizzes();
 
-  // Sort quizzes by createdAt
-  // createdAt is an object containing seconds and nanoseconds
-  // We need to convert it to a number so we can sort it
   const sortedQuizzes = quizzes.sort((a, b) => {
     const aCreatedAt =
       a.createdAt.seconds * 1000 + a.createdAt.nanoseconds / 1000000;
@@ -19,7 +17,6 @@ export default function QuizzesList() {
     return bCreatedAt - aCreatedAt;
   });
 
-  // TODO: Fix issue where loading is false and quizzes.length === 0 for a brief moment
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -46,16 +43,19 @@ export default function QuizzesList() {
   return (
     <>
       {sortedQuizzes.length > 0 ? (
-        <ul className="space-y-4">
+        <ul className="space-y-6">
           {sortedQuizzes.map((quiz: Quiz) => (
-            <li key={quiz.id} className="flex items-center">
-              <Link
-                href={`/quizzes/${quiz.id}`}
-                className="text-blue-500 font-medium"
+            <Link href={`/quizzes/${quiz.id}`}>
+              <li
+                key={quiz.id}
+                className="bg-white shadow-md hover:shadow-lg transition-shadow duration-200 p-6 rounded-lg my-4"
               >
-                {quiz.question}
-              </Link>
-            </li>
+                <p>{quiz.question}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {formatDate(quiz.createdAt)}
+                </p>
+              </li>
+            </Link>
           ))}
         </ul>
       ) : (

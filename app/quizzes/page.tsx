@@ -1,11 +1,11 @@
 "use client";
 
-import { useQuizzes } from "../../hooks/useQuizzes";
-import { useStore } from "../../store";
-import { Quiz } from "../../typings";
-import { shuffleArray } from "../../utils";
-import Study from "../Study";
-import QuizzesList from "./QuizzesList";
+import QuizzesList from "@/app/quizzes/QuizzesList";
+import Study from "@/app/Study";
+import { useQuizzes } from "@/hooks/useQuizzes";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
+import { shuffleArray } from "@/utils";
 
 export default function Quizzes() {
   const { quizzes, loading, error } = useQuizzes();

@@ -1,4 +1,4 @@
-import { collection, getDocs, query } from "firebase/firestore";
+import { orderBy, collection, getDocs, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../pages/_app";
 import { useStore } from "../store";
@@ -22,7 +22,8 @@ export const useQuizzes = () => {
 
       let qs: any[] = [];
       const quizzesQuery = query(
-        collection(db, "users", userRefs.firebaseId, "quizzes")
+        collection(db, "users", userRefs.firebaseId, "quizzes"),
+        orderBy("createdAt", "desc")
       );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {

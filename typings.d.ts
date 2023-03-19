@@ -12,6 +12,7 @@ export type Quiz = {
   question: string;
   answers: Answer[];
   sourceId: string;
+  createdAt: Date | Timestamp;
 };
 
 export type Answer = {
