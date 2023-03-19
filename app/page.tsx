@@ -1,13 +1,13 @@
 "use client";
 
+import Study from "@/app/Study";
+import { topics } from "@/constants/topics";
+import { useRecommendedQuizzes } from "@/hooks/useRecommendedQuizzes";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
+import { shuffleArray } from "@/utils";
 import { Oval } from "react-loader-spinner";
 import Typewriter from "typewriter-effect";
-import { topics } from "../constants/topics";
-import { useRecommendedQuizzes } from "../hooks/useRecommendedQuizzes";
-import { useStore } from "../store";
-import { Quiz } from "../typings";
-import { shuffleArray } from "../utils";
-import Study from "./Study";
 
 export default function Home() {
   const { userRefs } = useStore();
@@ -43,8 +43,7 @@ export default function Home() {
 
 const Profile = () => {
   const { activeQuizzes, setActiveQuizzes } = useStore();
-  const { recommendedQuizzes, loading, error } =
-    useRecommendedQuizzes();
+  const { recommendedQuizzes, loading, error } = useRecommendedQuizzes();
 
   const study = () => {
     const qs = shuffleArray(recommendedQuizzes).map((quiz: Quiz) => ({
