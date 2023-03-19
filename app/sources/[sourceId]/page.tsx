@@ -23,7 +23,7 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
   const { activeQuizzes, setActiveQuizzes } = useStore();
 
   const deleteSource = async () => {
-    const confirmed = confirm("Are you sure you want to delete this source?")
+    const confirmed = confirm("Are you sure you want to delete this source?");
     if (!confirmed) {
       return;
     }
@@ -85,8 +85,13 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
         <Study />
       ) : (
         <>
-          <h1 className="text-2xl font-medium mb-4">Source: {sourceId}</h1>
-          <p className="text-lg font-light mb-4">{source.text}</p>
+          <h1 className="text-2xl font-medium">
+            {source.title ||
+              source.text.split(" ").slice(0, 5).join(" ").concat("...")}
+          </h1>
+          <pre className="text-lg font-light my-4 whitespace-pre-wrap">
+            {source.text}
+          </pre>
 
           <div className="flex justify-between">
             <button

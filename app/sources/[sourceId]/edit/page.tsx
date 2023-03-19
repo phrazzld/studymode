@@ -15,11 +15,18 @@ type PageProps = {
 
 export default function EditSourcePage({ params: { sourceId } }: PageProps) {
   const { source, loading, error } = useSource(sourceId);
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
 
   useEffect(() => {
     if (source && !text) {
       setText(source.text);
+    }
+    if (source && !title) {
+      setTitle(
+        source.title ||
+          source.text.split(" ").slice(0, 5).join(" ").concat("...")
+      );
     }
   }, [JSON.stringify(source)]);
 
@@ -33,7 +40,7 @@ export default function EditSourcePage({ params: { sourceId } }: PageProps) {
 
       const userRef = doc(db, "users", auth.currentUser.uid);
       const sourceRef = doc(userRef, "sources", sourceId);
-      await setDoc(sourceRef, { text });
+      await setDoc(sourceRef, { title, text }, { merge: true });
 
       // Redirect to sources page
       window.location.href = "/sources";
@@ -71,9 +78,19 @@ export default function EditSourcePage({ params: { sourceId } }: PageProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4">Edit Source Page: {sourceId}</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Source</h1>
       <form onSubmit={handleSubmit} className="w-full max-w-sm">
         <div className="flex flex-col mb-4">
+          <label htmlFor="title" className="font-bold mb-2">
+            Title:
+          </label>
+          <input
+            className="border border-gray-400 p-2 mb-4"
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
           <label htmlFor="text" className="font-bold mb-2">
             Text:
           </label>

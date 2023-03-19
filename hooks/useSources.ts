@@ -1,4 +1,4 @@
-import { collection, getDocs, query } from "firebase/firestore";
+import { orderBy, collection, getDocs, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../pages/_app";
 import { useStore } from "../store";
@@ -22,8 +22,10 @@ export const useSources = () => {
       }
 
       let ss: any[] = [];
+      // Get sources from Firestore, ordered by createdAt
       const sourcesQuery = query(
-        collection(db, "users", userRefs.firebaseId, "sources")
+        collection(db, "users", userRefs.firebaseId, "sources"),
+        orderBy("createdAt", "desc")
       );
       const sourcesSnapshot = await getDocs(sourcesQuery);
       if (sourcesSnapshot.empty) {

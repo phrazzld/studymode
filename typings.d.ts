@@ -1,3 +1,5 @@
+import { Timestamp } from '@firebase/firestore'
+
 type UserRefs = {
   firebaseId: string | null;
   memreId: string | null;
@@ -20,4 +22,6 @@ export type Answer = {
 export type Source = {
   id: string;
   text: string;
+  title: string;
+  createdAt: Date | Timestamp;
 };

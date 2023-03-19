@@ -36,10 +36,14 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
 
       const userRef = doc(db, "users", auth.currentUser.uid);
       const quizRef = doc(userRef, "quizzes", quizId);
-      await setDoc(quizRef, {
-        question,
-        answers,
-      });
+      await setDoc(
+        quizRef,
+        {
+          question,
+          answers,
+        },
+        { merge: true }
+      );
 
       // Redirect to quizzes page
       window.location.href = "/quizzes";

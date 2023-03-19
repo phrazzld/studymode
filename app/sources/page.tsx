@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Oval } from "react-loader-spinner";
 import { useSources } from "../../hooks/useSources";
 import { Source } from "../../typings";
+import { formatDate } from "../../utils";
 
 export default function Sources() {
   const { sources, loading, error } = useSources();
@@ -32,7 +33,6 @@ export default function Sources() {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
   return (
     <div className="px-4 py-4">
       <h2 className="text-2xl font-medium mb-4">Sources</h2>
@@ -51,16 +51,30 @@ export default function Sources() {
       ) : (
         <ul className="space-y-4">
           {sources.map((source: Source) => (
-            <li key={source.id} className="flex items-center">
-              <Link
-                href={`/sources/${source.id}`}
-                className="text-blue-500 font-medium hover:underline"
-              >
-                <h3 className="text-lg font-medium">{source.id}</h3>
+            <li
+              key={source.id}
+              className="flex items-center p-4 bg-white shadow-md rounded hover:shadow-lg transition-shadow duration-200"
+            >
+              <div>
+                <Link href={`/sources/${source.id}`}>
+                  <button className="block text-blue-500 font-medium text-lg hover:underline mb-2">
+                    {source.title ||
+                      source.text
+                        .split(" ")
+                        .slice(0, 5)
+                        .join(" ")
+                        .concat("...")}
+                  </button>
+                </Link>
                 <p className="text-sm text-gray-700">
                   {source.text.substring(0, 200)}...
                 </p>
-              </Link>
+                <div className="flex items-center mt-2">
+                  <p className="text-sm text-gray-400 mr-2">
+                    {formatDate(source.createdAt)}
+                  </p>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

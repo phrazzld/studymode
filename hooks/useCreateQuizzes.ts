@@ -34,6 +34,7 @@ export const useCreateQuizzes = (source: string) => {
       const sourceDoc = await addDoc(
         collection(db, "users", user.uid, "sources"),
         {
+          title: source.split(" ").slice(0, 5).join(" ").concat("..."),
           text: source,
           createdAt: new Date(),
         }
