@@ -1,11 +1,12 @@
 "use client";
 
+import { useQuiz } from "@/hooks/useQuiz";
+import { auth, db } from "@/pages/_app";
+import { Answer } from "@/typings";
 import { deleteDoc, doc } from "firebase/firestore";
 import Link from "next/link";
+import { BsCheckSquareFill, BsFillXSquareFill } from "react-icons/bs";
 import { Oval } from "react-loader-spinner";
-import { useQuiz } from "../../../hooks/useQuiz";
-import { auth, db } from "../../../pages/_app";
-import { Answer } from "../../../typings";
 
 type PageProps = {
   params: {
@@ -67,31 +68,42 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
 
   return (
     <div className="flex flex-col p-6 max-w-screen-sm mx-auto">
-      <h1 className="text-2xl font-medium mb-4">Quiz Page: {quizId}</h1>
-      <Link href="/sources/[sourceId]" as={`/sources/${quiz.sourceId}`}>
-        <p className="text-blue-500 underline">Source: {quiz.sourceId}</p>
-      </Link>
-      <p className="text-lg font-medium mb-4">Question: {quiz.question}</p>
-      <ul className="text-lg font-medium mb-4">
+      <h1 className="text-2xl font-medium mb-1">{quiz.question}</h1>
+      <ul className="text-lg font-medium my-4">
         {quiz.answers.map((answer: Answer) => (
-          <li key={answer.text} className="mb-2">
-            {answer.text} (correct: {answer.correct.toString()})
+          <li key={answer.text} className="flex flex-row items-center mb-2">
+            {answer.correct ? (
+              <BsCheckSquareFill className="inline-block mr-2 text-green-500" />
+            ) : (
+              <BsFillXSquareFill className="inline-block mr-2 text-red-500" />
+            )}
+            <p>{answer.text}</p>
           </li>
         ))}
       </ul>
 
-      <div className="flex">
-        <Link href="/quizzes/[quizId]/edit" as={`/quizzes/${quizId}/edit`}>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mr-4">
-            Edit
+      <div className="flex justify-between my-4">
+        <div>
+          <Link href="/sources/[sourceId]" as={`/sources/${quiz.sourceId}`}>
+            <button className="bg-white-500 hover:bg-blue-500 hover:text-white py-2 px-4 rounded mr-4 border-2 border-blue-500">
+              View Source
+            </button>
+          </Link>
+        </div>
+
+        <div>
+          <Link href="/quizzes/[quizId]/edit" as={`/quizzes/${quizId}/edit`}>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mr-4">
+              Edit
+            </button>
+          </Link>
+          <button
+            onClick={deleteQuiz}
+            className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded"
+          >
+            Delete
           </button>
-        </Link>
-        <button
-          onClick={deleteQuiz}
-          className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded"
-        >
-          Delete
-        </button>
+        </div>
       </div>
     </div>
   );
