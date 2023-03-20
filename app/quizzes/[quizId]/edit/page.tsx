@@ -1,12 +1,13 @@
 "use client";
 
+import { useQuiz } from "@/hooks/useQuiz";
+import { auth, db } from "@/pages/_app";
+import { Answer } from "@/typings";
 import { doc, setDoc } from "firebase/firestore";
+import { Field, FieldArray, Form, Formik } from "formik";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Oval } from "react-loader-spinner";
-import { useQuiz } from "../../../../hooks/useQuiz";
-import { auth, db } from "../../../../pages/_app";
-import { Answer } from "../../../../typings";
 
 type PageProps = {
   params: {
@@ -16,19 +17,20 @@ type PageProps = {
 
 export default function EditQuizPage({ params: { quizId } }: PageProps) {
   const { quiz, loading, error } = useQuiz(quizId);
-  const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  const initialValues = {
+    question: quiz?.question || "",
+    answers: quiz?.answers || [],
+  };
 
   useEffect(() => {
-    if (quiz && !question && answers.length === 0) {
-      setQuestion(quiz.question);
-      setAnswers(quiz.answers);
+    if (quiz) {
+      initialValues.question = quiz.question;
+      initialValues.answers = quiz.answers;
     }
   }, [JSON.stringify(quiz)]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const handleSubmit = async (values: typeof initialValues) => {
     try {
       if (!auth.currentUser) {
         throw new Error("Cannot edit quiz. Not logged in.");
@@ -39,37 +41,17 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
       await setDoc(
         quizRef,
         {
-          question,
-          answers,
+          question: values.question,
+          answers: values.answers,
         },
         { merge: true }
       );
 
-      // Redirect to quizzes page
-      window.location.href = "/quizzes";
+      // Redirect to the quiz page
+      window.location.href = `/quizzes/${quizId}`;
     } catch (err: any) {
       console.error(err);
     }
-  };
-
-  const handleAnswerChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const newAnswers = [...answers];
-    newAnswers[index].text = e.target.value;
-    setAnswers(newAnswers);
-  };
-
-  const handleCorrectAnswerChange = (
-    _e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const newAnswers = answers.map((answer, i) => ({
-      ...answer,
-      correct: i === index,
-    }));
-    setAnswers(newAnswers);
   };
 
   if (loading) {
@@ -101,56 +83,91 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4">Edit Quiz Page: {quizId}</h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <div className="flex flex-col mb-4">
-          <label htmlFor="question" className="font-bold mb-2">
-            Question:
-          </label>
-          <textarea
-            className="w-full h-32 border border-gray-400 p-2 mb-4"
-            id="question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-        </div>
-
-        <h3 className="font-bold mb-4">Answers:</h3>
-        {answers.map((answer: Answer, index: number) => (
-          <div key={answer.text} className="flex flex-col mb-4">
-            <label htmlFor={`answer-${index}`} className="font-bold mb-2">
-              Answer {index + 1}:
-            </label>
-            <input
-              className="border border-gray-400 p-2"
-              type="text"
-              id={`answer-${index}`}
-              value={answer.text}
-              onChange={(e) => handleAnswerChange(e, index)}
-            />
-            <div className="flex items-center mb-2">
-              <input
-                type="radio"
-                name="correct"
-                checked={answer.correct}
-                onChange={(e) => handleCorrectAnswerChange(e, index)}
+      <h1 className="text-2xl font-bold my-4">Edit Quiz</h1>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ values }) => (
+          <Form className="w-full max-w-sm">
+            <div className="flex flex-col mb-4">
+              <label htmlFor="question" className="font-bold mb-2">
+                Question:
+              </label>
+              <Field
+                as="textarea"
+                className="w-full h-32 border border-gray-400 p-2 mb-4"
+                id="question"
+                name="question"
               />
-              <span className="ml-2">Correct</span>
             </div>
-          </div>
-        ))}
 
-        <div className="flex justify-between">
-          <button className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Save Changes
-          </button>
-          <Link href="/quizzes/[quizId]" as={`/quizzes/${quizId}`}>
-            <button className="bg-gray-400 text-white p-2 rounded hover:bg-gray-500">
-              Cancel
-            </button>
-          </Link>
-        </div>
-      </form>
+            <FieldArray name="answers">
+              {({ remove, push }) => (
+                <>
+                  {values.answers.map((answer: Answer, index: number) => (
+                    <div key={index} className="flex flex-col mb-4">
+                      <label
+                        htmlFor={`answers.${index}.text`}
+                        className="font-bold mb-2"
+                      >
+                        Answer {index + 1}:
+                      </label>
+                      <Field
+                        className="border border-gray-400 p-2"
+                        type="text"
+                        id={`answers.${index}.text`}
+                        name={`answers.${index}.text`}
+                      />
+                      <div className="flex items-center mb-2">
+                        <Field
+                          type="checkbox"
+                          name={`answers.${index}.correct`}
+                        />
+                        <span className="ml-2">Correct</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-red-500 text-white p-2 rounded hover:bg-red-600 mb-2"
+                      >
+                        Remove Answer
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      push({
+                        text: "",
+                        correct: false,
+                      })
+                    }
+                    className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4"
+                  >
+                    Add Answer
+                  </button>
+                </>
+              )}
+            </FieldArray>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2"
+              >
+                Save Changes
+              </button>
+              <Link href="/quizzes/[quizId]" as={`/quizzes/${quizId}`}>
+                <button className="bg-gray-400 text-white p-2 rounded hover:bg-gray-500">
+                  Cancel
+                </button>
+              </Link>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }
