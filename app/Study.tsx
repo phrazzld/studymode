@@ -224,7 +224,7 @@ function StudySummary({
 }) {
   if (correct !== null) {
     return (
-      <div>
+      <div className="flex flex-row items-center justify-between">
         <GenerateFollowUpQuizzesButton quiz={quizzes[quizIndex]} />
         {quizIndex === quizzes.length - 1 ? (
           <>
@@ -283,6 +283,14 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
     }
   };
 
+  if (isGenerating) {
+    return (
+      <div className="text-2xl font-bold my-4">
+        <p>Generating follow-up quizzes, this may take a minute...</p>
+      </div>
+    )
+  }
+
   if (finishedGenerating) {
     return (
       <div className="text-2xl font-bold my-4">
@@ -298,14 +306,14 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
         onClick={() => generateFollowUpQuizzes("easy")}
         disabled={isGenerating}
       >
-        Autogenerate Easier Quizzes
+        Easier
       </button>
       <button
         className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-300 ease-in-out"
         onClick={() => generateFollowUpQuizzes("hard")}
         disabled={isGenerating}
       >
-        Autogenerate Harder Quizzes
+        Harder
       </button>
     </div>
   );
