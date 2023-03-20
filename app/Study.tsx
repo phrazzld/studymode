@@ -242,7 +242,8 @@ function StudySummary({
       <div className="flex flex-col">
         <div>
           <p className="text-xl mb-10">
-            You got {correctCount} / {quizzes.length} correct in this study session.
+            You got {correctCount} / {quizzes.length} correct in this study
+            session.
           </p>
         </div>
 
