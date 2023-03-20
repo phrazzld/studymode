@@ -1,8 +1,9 @@
-import { orderBy, collection, getDocs, query } from "firebase/firestore";
+import { db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../pages/_app";
-import { useStore } from "../store";
 
+// TODO: Paginate
 export const useQuizzes = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

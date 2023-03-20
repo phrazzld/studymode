@@ -1,10 +1,10 @@
 "use client";
 
+import { useSources } from "@/hooks/useSources";
+import { Source } from "@/typings";
+import { formatDate } from "@/utils";
 import Link from "next/link";
 import { Oval } from "react-loader-spinner";
-import { useSources } from "../../hooks/useSources";
-import { Source } from "../../typings";
-import { formatDate } from "../../utils";
 
 export default function Sources() {
   const { sources, loading, error } = useSources();
@@ -55,8 +55,8 @@ export default function Sources() {
               key={source.id}
               className="flex items-center p-4 bg-white shadow-md rounded hover:shadow-lg transition-shadow duration-200"
             >
-              <div>
-                <Link href={`/sources/${source.id}`}>
+              <Link href={`/sources/${source.id}`}>
+                <div>
                   <button className="block text-blue-500 font-medium text-lg hover:underline mb-2">
                     {source.title ||
                       source.text
@@ -65,16 +65,16 @@ export default function Sources() {
                         .join(" ")
                         .concat("...")}
                   </button>
-                </Link>
-                <p className="text-sm text-gray-700">
-                  {source.text.substring(0, 200)}...
-                </p>
-                <div className="flex items-center mt-2">
-                  <p className="text-sm text-gray-400 mr-2">
-                    {formatDate(source.createdAt)}
+                  <p className="text-sm text-gray-700">
+                    {source.text.substring(0, 200)}...
                   </p>
+                  <div className="flex items-center mt-2">
+                    <p className="text-sm text-gray-400 mr-2">
+                      {formatDate(source.createdAt)}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </li>
           ))}
         </ul>

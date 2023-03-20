@@ -1,8 +1,12 @@
+import "@/styles/globals.css";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import type { AppProps } from "next/app";
-import "../styles/globals.css";
 
 const firebaseProdConfig = {
   apiKey: "AIzaSyDKT7NV3QfisgKj6ytLhqARuxPOYTdR_6M",

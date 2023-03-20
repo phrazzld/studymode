@@ -1,12 +1,15 @@
 "use client";
 
+import { createSource, generateQuizzes } from "@/firebase";
+import { auth, db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Answer, Quiz } from "@/typings";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
 import { addDoc, collection, doc } from "firebase/firestore";
 import { useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
-import { createSource, generateQuizzes } from "../firebase";
-import { auth, db } from "../pages/_app";
-import { useStore } from "../store";
-import { Answer, Quiz } from "../typings";
 
 export default function Study() {
   const [submittedAnswer, setSubmittedAnswer] = useState<Answer | null>(null);
@@ -87,9 +90,33 @@ export default function Study() {
 
   return (
     <div className="flex flex-col">
-      <CloseButton onClick={() => setQuizzes(null)} />
-      <h1 className="text-2xl font-bold py-2 px-4">Study</h1>
-      <QuizHeader quiz={quiz} quizIndex={quizIndex} quizzes={quizzes} />
+      <div className="flex flex-row items-center justify-between mb-5">
+        <h1 className="text-2xl font-bold py-2 px-4">Study</h1>
+        <CloseButton onClick={() => setQuizzes(null)} />
+      </div>
+
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mx: 1,
+        }}
+      >
+        <Box sx={{ width: "90%" }}>
+          <LinearProgress
+            variant="determinate"
+            value={((quizIndex + 1) / quizzes.length) * 100}
+          />
+        </Box>
+        <Box sx={{ minWidth: 35 }}>
+          <Typography variant="body2" color="text.secondary">
+            {quizIndex + 1}/{quizzes.length}
+          </Typography>
+        </Box>
+      </Box>
+
+      <QuizHeader quiz={quiz} />
       <AnswersList
         quiz={quiz}
         submittedAnswer={submittedAnswer}
@@ -121,20 +148,8 @@ function CloseButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function QuizHeader({
-  quiz,
-  quizIndex,
-  quizzes,
-}: {
-  quiz: Quiz;
-  quizIndex: number;
-  quizzes: Quiz[];
-}) {
-  return (
-    <p className="my-5 px-4">
-      Question {quizIndex + 1}/{quizzes.length}: {quiz.question}
-    </p>
-  );
+function QuizHeader({ quiz }: { quiz: Quiz }) {
+  return <p className="text-xl my-5 px-4">{quiz.question}</p>;
 }
 
 function AnswersList({
@@ -149,11 +164,11 @@ function AnswersList({
   const answers = quiz.answers;
 
   return (
-    <ul className="grid gap-2">
+    <ul className="grid gap-3">
       {answers.map((answer: Answer) => (
         <li
           key={answer.text}
-          className={`flex items-center cursor-pointer py-3 px-4 rounded-md ${
+          className={`flex items-center cursor-pointer py-5 px-4 rounded-md shadow-md hover:shadow-lg transition-shadow duration-200 ${
             submittedAnswer !== null && answer.correct
               ? "bg-green-500 text-white"
               : "bg-white text-gray-800"
@@ -190,7 +205,7 @@ function AnswerResult({
 
   return (
     <div
-      className={`flex items-center justify-center rounded-md py-10 px-4 text-lg font-bold ${
+      className={`flex items-center justify-center rounded-md my-10 py-5 px-4 text-lg font-bold border-2 border-gray-400 ${
         correct ? "text-green-600" : "text-red-600"
       }`}
     >
@@ -224,19 +239,21 @@ function StudySummary({
 }) {
   if (correct !== null) {
     return (
-      <div className="flex flex-row items-center justify-between">
-        <GenerateFollowUpQuizzesButton quiz={quizzes[quizIndex]} />
-        {quizIndex === quizzes.length - 1 ? (
-          <>
-            <p className="text-2xl font-bold my-4">Done!</p>
-            <p className="text-2xl font-bold my-4">
-              {correctCount} / {quizzes.length} correct
-            </p>
+      <div className="flex flex-col">
+        <div>
+          <p className="text-xl mb-10">
+            You got {correctCount} / {quizzes.length} correct in this study session.
+          </p>
+        </div>
+
+        <div className="flex flex-row items-center justify-between">
+          <GenerateFollowUpQuizzesButton quiz={quizzes[quizIndex]} />
+          {quizIndex === quizzes.length - 1 ? (
             <FinishButton onFinishClick={onFinishClick} />
-          </>
-        ) : (
-          <NextQuizButton onNextClick={onNextClick} />
-        )}
+          ) : (
+            <NextQuizButton onNextClick={onNextClick} />
+          )}
+        </div>
       </div>
     );
   }
@@ -267,7 +284,7 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
       const input =
         followUpType === "easy"
           ? `Help! I'm stuck on the following question: "${quiz.question}". I don't understand why "${correctAnswer}" is correct. Can you help me better understand this?`
-          : `This quiz is too easy! I already know the answer to this question way too well: "${quiz.question}". Can you give me some more challenging material that expand my knowledge of this subject?`;
+          : `This quiz is too easy! I already know the answer to this question way too well: "${quiz.question}". Can you give me some more challenging material that expands my knowledge of this subject?`;
 
       // Create source
       const { sourceText, sourceDoc } = await createSource(input);
@@ -285,16 +302,16 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
 
   if (isGenerating) {
     return (
-      <div className="text-2xl font-bold my-4">
-        <p>Generating follow-up quizzes, this may take a minute...</p>
-      </div>
-    )
+      <Box sx={{ width: "85%", marginLeft: "auto", marginRight: "auto" }}>
+        <LinearProgress />
+      </Box>
+    );
   }
 
   if (finishedGenerating) {
     return (
-      <div className="text-2xl font-bold my-4">
-        <p>Follow-up quizzes generated!</p>
+      <div className="my-4">
+        <p className="text-lg">Follow-up quizzes generated!</p>
       </div>
     );
   }
