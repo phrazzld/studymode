@@ -3,6 +3,8 @@
 import { useQuiz } from "@/hooks/useQuiz";
 import { auth, db } from "@/pages/_app";
 import { Answer } from "@/typings";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { doc, setDoc } from "firebase/firestore";
 import { Field, FieldArray, Form, Formik } from "formik";
 import Link from "next/link";
@@ -90,14 +92,14 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
         enableReinitialize
       >
         {({ values }) => (
-          <Form className="w-full max-w-sm">
-            <div className="flex flex-col mb-4">
-              <label htmlFor="question" className="font-bold mb-2">
+          <Form className="w-full max-w-lg">
+            <div className="mb-6">
+              <label htmlFor="question" className="block font-bold mb-2">
                 Question:
               </label>
               <Field
                 as="textarea"
-                className="w-full h-32 border border-gray-400 p-2 mb-4"
+                className="w-full h-32 border border-gray-400 p-3"
                 id="question"
                 name="question"
               />
@@ -106,34 +108,35 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
             <FieldArray name="answers">
               {({ remove, push }) => (
                 <>
-                  {values.answers.map((answer: Answer, index: number) => (
-                    <div key={index} className="flex flex-col mb-4">
+                  {values.answers.map((_answer: Answer, index: number) => (
+                    <div key={index} className="mb-4">
                       <label
                         htmlFor={`answers.${index}.text`}
-                        className="font-bold mb-2"
+                        className="block font-bold mb-2"
                       >
                         Answer {index + 1}:
                       </label>
-                      <Field
-                        className="border border-gray-400 p-2"
-                        type="text"
-                        id={`answers.${index}.text`}
-                        name={`answers.${index}.text`}
-                      />
-                      <div className="flex items-center mb-2">
+                      <div className="flex items-center space-x-4">
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                        <Field
+                          className="border border-gray-400 p-2 flex-grow"
+                          type="text"
+                          id={`answers.${index}.text`}
+                          name={`answers.${index}.text`}
+                        />
                         <Field
                           type="checkbox"
                           name={`answers.${index}.correct`}
+                          className="form-checkbox text-blue-500 h-5 w-5"
                         />
-                        <span className="ml-2">Correct</span>
+                        <span>Correct</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="bg-red-500 text-white p-2 rounded hover:bg-red-600 mb-2"
-                      >
-                        Remove Answer
-                      </button>
                     </div>
                   ))}
                   <button
@@ -144,18 +147,18 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
                         correct: false,
                       })
                     }
-                    className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4"
+                    className="text-green-500 hover:text-green-600 mb-4"
                   >
-                    Add Answer
+                    <FontAwesomeIcon icon={faPlus} /> Add Answer
                   </button>
                 </>
               )}
             </FieldArray>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-2">
               <button
                 type="submit"
-                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2"
+                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
               >
                 Save Changes
               </button>

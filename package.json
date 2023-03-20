@@ -6,6 +6,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.3.0",
+    "@fortawesome/free-solid-svg-icons": "^6.3.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "encoding": "^0.1.13",
     "firebase": "^9.16.0",
     "firebase-admin": "^11.5.0",
