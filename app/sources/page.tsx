@@ -53,7 +53,7 @@ export default function Sources() {
           {sources.map((source: Source) => (
             <li
               key={source.id}
-              className="flex items-center p-4 bg-white shadow-md rounded hover:shadow-lg transition-shadow duration-200"
+              className="flex items-center p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition-shadow duration-200"
             >
               <Link href={`/sources/${source.id}`}>
                 <div>

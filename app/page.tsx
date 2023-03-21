@@ -60,48 +60,55 @@ const Profile = () => {
           <Study />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-screen">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold text-gray-800 h-14 w-screen">
-              Welcome to StudyMode!
-            </h1>
-          </div>
-
-          {error && <p className="text-red-500">{error}</p>}
-
-          {loading ? (
-            <Oval
-              height={40}
-              width={40}
-              color="rgb(59 130 246)"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible={true}
-              ariaLabel="oval-loading"
-              secondaryColor="rgb(59 130 246)"
-              strokeWidth={2}
-              strokeWidthSecondary={2}
-            />
-          ) : (
-            <div className="flex flex-row items-center justify-center mt-10">
-              {!!recommendedQuizzes && recommendedQuizzes.length > 0 ? (
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-10"
-                  disabled={loading || error}
-                  onClick={study}
-                >
-                  Study {Math.min(10, recommendedQuizzes.length)} Quizzes
-                </button>
-              ) : (
-                <div className="flex flex-col items-center justify-center">
-                  <p className="text-gray-500 text-xl">You're good!</p>
-                  <p className="text-gray-500">
-                    No quizzes to study. Create some more, or come back later.
-                  </p>
-                </div>
-              )}
+        <div className="min-h-screen">
+          <div className="container mx-auto px-6 py-12">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                Welcome to StudyMode!
+              </h1>
+              <p className="text-xl text-gray-600">
+                Your personalized learning experience starts here.
+              </p>
             </div>
-          )}
+
+            {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+
+            {loading ? (
+              <div className="flex justify-center mt-10">
+                <Oval
+                  height={40}
+                  width={40}
+                  color="rgb(59 130 246)"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                  visible={true}
+                  ariaLabel="oval-loading"
+                  secondaryColor="rgb(59 130 246)"
+                  strokeWidth={2}
+                  strokeWidthSecondary={2}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center mt-10">
+                {!!recommendedQuizzes && recommendedQuizzes.length > 0 ? (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-10"
+                    disabled={loading || error}
+                    onClick={study}
+                  >
+                    Study {Math.min(10, recommendedQuizzes.length)} Quizzes
+                  </button>
+                ) : (
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="text-gray-500 text-xl">You're good!</p>
+                    <p className="text-gray-500">
+                      No quizzes to study. Create some more, or come back later.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </>

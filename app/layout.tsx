@@ -71,7 +71,7 @@ export default function RootLayout({
   return (
     <html>
       <head />
-      <body>
+      <body className="bg-gray-100">
         <Header />
         <div className="max-w-screen-sm mx-auto">{children}</div>
       </body>
