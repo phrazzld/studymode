@@ -1,19 +1,19 @@
 "use client";
 
+import Header from "@/app/Header";
+import { useCreateMemreUser } from "@/hooks/useCreateMemreUser";
+import { auth, db } from "@/pages/_app";
+import { useStore } from "@/store";
+import "@/styles/globals.css";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
-import { useCreateMemreUser } from "../hooks/useCreateMemreUser";
-import { auth, db } from "../pages/_app";
-import { useStore } from "../store";
-import "../styles/globals.css";
-import Header from "./Header";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { userRefs, setUserRefs } = useStore();
+  const { setUserRefs } = useStore();
   const { createMemreUser } = useCreateMemreUser();
 
   useEffect(() => {
@@ -30,14 +30,14 @@ export default function RootLayout({
             setUserRefs({
               firebaseId: user.uid,
               memreId: userDoc.data()?.memreId,
-              loaded: true
+              loaded: true,
             });
           } else {
             const memreId = await createMemreUser();
             setUserRefs({
               firebaseId: user.uid,
               memreId: memreId,
-              loaded: true
+              loaded: true,
             });
             setDoc(
               doc(db, "users", user.uid),
@@ -50,7 +50,7 @@ export default function RootLayout({
           setUserRefs({
             firebaseId: user.uid,
             memreId: memreId,
-            loaded: true
+            loaded: true,
           });
           setDoc(
             doc(db, "users", user.uid),
