@@ -1,6 +1,6 @@
 import { addDoc, collection } from "firebase/firestore";
-import { Quiz } from "./typings";
 import { auth, db } from "./pages/_app";
+import { Quiz } from "./typings";
 
 type CreateSourceResponse = {
   sourceText: string;
@@ -17,6 +17,7 @@ export const createSource = async (
     }
     const user = auth.currentUser;
 
+    console.debug("Sending POST request to /api/sources...");
     const response = await fetch("/api/sources", {
       method: "POST",
       headers: {
@@ -24,6 +25,7 @@ export const createSource = async (
       },
       body: JSON.stringify({ input }),
     });
+    console.debug("Response received from POST request to /api/sources sent.");
 
     // If the response is not ok, throw an error
     if (!response.ok) {
@@ -34,6 +36,7 @@ export const createSource = async (
     const { source } = await response.json();
 
     // Save source to users/sources subcollection
+    console.debug("Saving source to Firestore...");
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
       {
@@ -42,6 +45,22 @@ export const createSource = async (
         createdAt: new Date(),
       }
     );
+    console.debug("Source saved to Firestore.");
+
+    // Add source to Pinecone index
+    console.debug("Adding source to Pinecone index...");
+    await fetch("/api/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentType: "source",
+        data: sourceDoc,
+        userId: user.uid,
+      }),
+    });
+    console.debug("Source added to Pinecone index.");
 
     return { sourceText: source, sourceDoc };
   } catch (error: any) {
