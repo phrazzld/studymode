@@ -1,11 +1,11 @@
 "use client";
 
+import { useSource } from "@/hooks/useSource";
+import { auth, db } from "@/pages/_app";
 import { doc, setDoc } from "firebase/firestore";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
-import { useSource } from "../../../../hooks/useSource";
-import { auth, db } from "../../../../pages/_app";
 
 type PageProps = {
   params: {

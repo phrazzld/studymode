@@ -1,8 +1,8 @@
+import { db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { shuffleArray } from "@/utils";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../pages/_app";
-import { useStore } from "../store";
-import { shuffleArray } from "../utils";
 
 export const useRecommendedQuizzes = () => {
   const [recommendedQuizzes, setQuizzes] = useState<any[]>([]);

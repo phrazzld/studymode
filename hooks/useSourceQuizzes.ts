@@ -1,7 +1,7 @@
+import { db } from "@/pages/_app";
+import { useStore } from "@/store";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../pages/_app";
-import { useStore } from "../store";
 
 export const useSourceQuizzes = (sourceId: string) => {
   const [quizzes, setQuizzes] = useState<any[]>([]);

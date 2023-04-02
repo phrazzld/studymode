@@ -1,15 +1,15 @@
 "use client";
 
+import Study from "@/app/Study";
+import { useSource } from "@/hooks/useSource";
+import { useSourceQuizzes } from "@/hooks/useSourceQuizzes";
+import { auth, db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
+import { shuffleArray } from "@/utils";
 import { deleteDoc, doc } from "firebase/firestore";
 import Link from "next/link";
 import { Oval } from "react-loader-spinner";
-import { useSource } from "../../../hooks/useSource";
-import { useSourceQuizzes } from "../../../hooks/useSourceQuizzes";
-import { auth, db } from "../../../pages/_app";
-import { useStore } from "../../../store";
-import { Quiz } from "../../../typings";
-import { shuffleArray } from "../../../utils";
-import Study from "../../Study";
 
 type PageProps = {
   params: {

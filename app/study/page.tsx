@@ -1,10 +1,10 @@
 "use client";
 
+import { useQuizzes } from "@/hooks/useQuizzes";
+import { auth, db } from "@/pages/_app";
+import { Answer } from "@/typings";
 import { addDoc, collection, doc } from "firebase/firestore";
 import { useState } from "react";
-import { useQuizzes } from "../../hooks/useQuizzes";
-import { auth, db } from "../../pages/_app";
-import { Answer } from "../../typings";
 
 // What does the UX look like for study?
 // To start, I think we can just pull all of the quizzes for the current user

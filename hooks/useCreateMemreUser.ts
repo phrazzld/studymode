@@ -1,6 +1,6 @@
+import { auth, db } from "@/pages/_app";
 import { doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
-import { auth, db } from "../pages/_app";
 
 export const useCreateMemreUser = () => {
   const [memreId, setMemreId] = useState<any[]>([]);
@@ -41,7 +41,7 @@ export const useCreateMemreUser = () => {
       const { memreId } = await response.json();
 
       setMemreId(memreId);
-      return memreId
+      return memreId;
     } catch (err: any) {
       console.error(err);
       setError(err.message);
