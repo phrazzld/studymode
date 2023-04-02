@@ -45,11 +45,8 @@ export default function QuizzesList() {
       {sortedQuizzes.length > 0 ? (
         <ul className="space-y-6">
           {sortedQuizzes.map((quiz: Quiz) => (
-            <Link href={`/quizzes/${quiz.id}`}>
-              <li
-                key={quiz.id}
-                className="bg-white shadow-md hover:shadow-lg transition-shadow duration-200 p-6 rounded-lg my-4"
-              >
+            <Link key={quiz.id} href={`/quizzes/${quiz.id}`}>
+              <li className="bg-white shadow-md hover:shadow-lg transition-shadow duration-200 p-6 rounded-lg my-4">
                 <p>{quiz.question}</p>
                 <p className="text-sm text-gray-500 mt-2">
                   {formatDate(quiz.createdAt)}
