@@ -31,14 +31,28 @@ export const useCreateQuizzes = (source: string) => {
       await getDoc(doc(db, "users", user.uid));
 
       // Save source to users/sources subcollection
+      const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
       const sourceDoc = await addDoc(
         collection(db, "users", user.uid, "sources"),
         {
-          title: source.split(" ").slice(0, 5).join(" ").concat("..."),
+          title: sourceTitle,
           text: source,
           createdAt: new Date(),
         }
       );
+
+      // Add source to Pinecone index
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "source",
+          data: { id: sourceDoc.id, title: sourceTitle, text: source },
+          userId: user.uid,
+        }),
+      });
 
       // Create quizzes
       const qs = await generateQuizzes(source, sourceDoc, userRefs.memreId);

@@ -1,15 +1,15 @@
 "use client";
 
+import Study from "@/app/Study";
+import { useSource } from "@/hooks/useSource";
+import { useSourceQuizzes } from "@/hooks/useSourceQuizzes";
+import { auth, db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
+import { shuffleArray } from "@/utils";
 import { deleteDoc, doc } from "firebase/firestore";
 import Link from "next/link";
 import { Oval } from "react-loader-spinner";
-import { useSource } from "../../../hooks/useSource";
-import { useSourceQuizzes } from "../../../hooks/useSourceQuizzes";
-import { auth, db } from "../../../pages/_app";
-import { useStore } from "../../../store";
-import { Quiz } from "../../../typings";
-import { shuffleArray } from "../../../utils";
-import Study from "../../Study";
 
 type PageProps = {
   params: {
@@ -36,6 +36,18 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
       const userRef = doc(db, "users", auth.currentUser.uid);
       const sourceRef = doc(userRef, "sources", sourceId);
       await deleteDoc(sourceRef);
+
+      // Delete embedding from Pinecone index
+      await fetch("/api/embeddings", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: sourceId,
+          userId: auth.currentUser.uid,
+        }),
+      });
 
       // Redirect to sources page
       window.location.href = "/sources";

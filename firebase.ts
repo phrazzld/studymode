@@ -1,6 +1,6 @@
+import { auth, db } from "@/pages/_app";
+import { Quiz } from "@/typings";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db } from "./pages/_app";
-import { Quiz } from "./typings";
 
 type CreateSourceResponse = {
   sourceText: string;
@@ -116,12 +116,32 @@ export const generateQuizzes = async (
 
       const { memreId } = await memreResponse.json();
 
-      await addDoc(collection(db, "users", user.uid, "quizzes"), {
-        memreId: memreId,
-        sourceId: sourceDoc.id,
-        question: quiz.question,
-        answers,
-        createdAt: new Date(),
+      const quizDoc = await addDoc(
+        collection(db, "users", user.uid, "quizzes"),
+        {
+          memreId: memreId,
+          sourceId: sourceDoc.id,
+          question: quiz.question,
+          answers,
+          createdAt: new Date(),
+        }
+      );
+
+      // Add quiz to Pinecone index
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "quiz",
+          data: {
+            id: quizDoc.id,
+            question: quiz.question,
+            answers: quiz.answers,
+          },
+          userId: user.uid,
+        }),
       });
     });
 

@@ -24,6 +24,25 @@ export default function Header() {
     setIsOpen(!isOpen);
   };
 
+  const testQuery = async () => {
+    if (!userRefs?.firebaseId) return;
+
+    const query = new URLSearchParams({
+      query: "protein",
+      userId: userRefs.firebaseId,
+    });
+    const response = await fetch(`/api/embeddings?${query}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
+  // TODO: Collapse Sources and Quizzes into Content/Search/Something
+  // TODO: Write that component to use Pinecone for semantic search of sources and quizzes
   return (
     <header className="bg-blue-500">
       <nav className="container mx-auto px-6 py-4">
@@ -36,6 +55,9 @@ export default function Header() {
               <></>
             ) : userRefs?.firebaseId ? (
               <>
+                <button onClick={testQuery} className="focus:outline-none">
+                  Test Query
+                </button>
                 <Link href="/quizzes/new">
                   <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
                     Create

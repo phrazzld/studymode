@@ -4,7 +4,6 @@ import { Source } from "@/typings";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
-// TODO: Paginate
 export const useSources = () => {
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);

@@ -49,6 +49,23 @@ export default function EditQuizPage({ params: { quizId } }: PageProps) {
         { merge: true }
       );
 
+      // Update the Pinecone embedding
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "quiz",
+          data: {
+            id: quizId,
+            question: values.question,
+            answers: values.answers,
+          },
+          userId: auth.currentUser.uid,
+        }),
+      });
+
       // Redirect to the quiz page
       window.location.href = `/quizzes/${quizId}`;
     } catch (err: any) {

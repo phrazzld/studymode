@@ -1,11 +1,11 @@
 "use client";
 
+import { useSource } from "@/hooks/useSource";
+import { auth, db } from "@/pages/_app";
 import { doc, setDoc } from "firebase/firestore";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
-import { useSource } from "../../../../hooks/useSource";
-import { auth, db } from "../../../../pages/_app";
 
 type PageProps = {
   params: {
@@ -41,6 +41,19 @@ export default function EditSourcePage({ params: { sourceId } }: PageProps) {
       const userRef = doc(db, "users", auth.currentUser.uid);
       const sourceRef = doc(userRef, "sources", sourceId);
       await setDoc(sourceRef, { title, text }, { merge: true });
+
+      // Update Pinecone embedding
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "source",
+          data: { id: sourceId, title: title, text: text },
+          userId: auth.currentUser.uid,
+        }),
+      });
 
       // Redirect to sources page
       window.location.href = "/sources";
