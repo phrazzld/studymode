@@ -17,7 +17,6 @@ export const createSource = async (
     }
     const user = auth.currentUser;
 
-    console.debug("Sending POST request to /api/sources...");
     const response = await fetch("/api/sources", {
       method: "POST",
       headers: {
@@ -25,7 +24,6 @@ export const createSource = async (
       },
       body: JSON.stringify({ input }),
     });
-    console.debug("Response received from POST request to /api/sources sent.");
 
     // If the response is not ok, throw an error
     if (!response.ok) {
@@ -36,19 +34,17 @@ export const createSource = async (
     const { source } = await response.json();
 
     // Save source to users/sources subcollection
-    console.debug("Saving source to Firestore...");
+    const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
       {
-        title: source.split(" ").slice(0, 5).join(" ").concat("..."),
+        title: sourceTitle,
         text: source,
         createdAt: new Date(),
       }
     );
-    console.debug("Source saved to Firestore.");
 
     // Add source to Pinecone index
-    console.debug("Adding source to Pinecone index...");
     await fetch("/api/embeddings", {
       method: "POST",
       headers: {
@@ -56,11 +52,10 @@ export const createSource = async (
       },
       body: JSON.stringify({
         contentType: "source",
-        data: sourceDoc,
+        data: { id: sourceDoc.id, title: sourceTitle, text: source },
         userId: user.uid,
       }),
     });
-    console.debug("Source added to Pinecone index.");
 
     return { sourceText: source, sourceDoc };
   } catch (error: any) {

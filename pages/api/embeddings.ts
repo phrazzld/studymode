@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "@pinecone-database/pinecone";
-import { Source } from "../../typings";
+import { Source } from "@/typings";
 
 const PINECONE_INDEX_NAME = "studymode";
 
@@ -11,16 +11,11 @@ const openAIConfig = new Configuration({
 const openai = new OpenAIApi(openAIConfig);
 
 const initPinecone = async () => {
-  console.debug("Initializing Pinecone...");
-  console.debug("environment:", process.env.NODE_ENV || "development");
-  console.debug("apiKey:", process.env.PINECONE_API_KEY || "");
-
   const pinecone = new PineconeClient();
   await pinecone.init({
-    environment: process.env.NODE_ENV || "development",
+    environment: "us-west4-gcp",
     apiKey: process.env.PINECONE_API_KEY || "",
   });
-  console.debug("pinecone:", pinecone);
 
   return pinecone;
 };
@@ -30,19 +25,15 @@ const addSourceToIndex = async (source: Source, userId: string) => {
     // Initialize Pinecone and get the index
     const pinecone = await initPinecone();
     const index = pinecone.Index(PINECONE_INDEX_NAME);
-    console.debug("Pinecone initialized.");
 
     // Create an embedding for the source
-    console.debug("Creating embedding for source...");
     const embeddingResponse = await openai.createEmbedding({
       model: "text-embedding-ada-002",
       input: `${source.title} ${source.text}`,
     });
     const embedding = embeddingResponse.data.data[0].embedding;
-    console.debug("Embedding created.");
 
     // Add the source to the index
-    console.debug("Adding source to index...");
     const upsertRequest = {
       vectors: [
         {
@@ -58,8 +49,7 @@ const addSourceToIndex = async (source: Source, userId: string) => {
       namespace: userId,
     };
     const response = await index.upsert({ upsertRequest });
-    console.debug("Source added to index.");
-    console.debug("response:", response);
+    return response;
   } catch (error: any) {
     console.error(error);
     throw new Error(error);
@@ -67,12 +57,12 @@ const addSourceToIndex = async (source: Source, userId: string) => {
 };
 
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { contentType, source, userId } = req.body;
+  const { contentType, data, userId } = req.body;
   try {
     switch (contentType) {
       case "source":
-        await addSourceToIndex(source, userId);
-        res.status(200)
+        await addSourceToIndex(data, userId);
+        res.status(200).json({ message: "Success" });
         break;
       default:
         res.status(400).json({ error: "Invalid content type" });
