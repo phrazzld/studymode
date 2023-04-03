@@ -1,8 +1,8 @@
+import { db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../pages/_app";
-import { useStore } from "../store";
-import { Quiz } from "../typings";
 
 export const useQuiz = (quizId: string) => {
   const [quiz, setQuiz] = useState<Quiz | null>(null);

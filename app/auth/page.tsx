@@ -1,14 +1,14 @@
 "use client";
 
+import { auth } from "@/pages/_app";
+import { useStore } from "@/store";
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { useState } from "react";
-import { auth } from "../../pages/_app";
 import { useRouter } from "next/navigation";
-import { useStore } from "../../store";
+import { useState } from "react";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -35,15 +35,15 @@ export default function Auth() {
         }),
       });
       const createMemreUserResponseJson = await createMemreUserResponse.json();
-      const memreId = createMemreUserResponseJson.memreId
+      const memreId = createMemreUserResponseJson.memreId;
       setUserRefs({
         firebaseId,
         memreId,
-        loaded: true
+        loaded: true,
       });
       router.push("/");
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       setError(error.message);
     }
   };

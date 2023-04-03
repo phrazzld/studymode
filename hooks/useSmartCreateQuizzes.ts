@@ -1,9 +1,9 @@
+import { createSource, generateQuizzes } from "@/firebase";
+import { auth, db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Quiz } from "@/typings";
 import { doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
-import { createSource, generateQuizzes } from "../firebase";
-import { auth, db } from "../pages/_app";
-import { useStore } from "../store";
-import { Quiz } from "../typings";
 
 export const useSmartCreateQuizzes = (prompt: string) => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);

@@ -1,5 +1,5 @@
+import { Quiz, UserRefs } from "@/typings";
 import { create } from "zustand";
-import { Quiz, UserRefs } from "./typings";
 
 type State = {
   userRefs: UserRefs | null;

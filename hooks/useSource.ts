@@ -1,8 +1,8 @@
+import { db } from "@/pages/_app";
+import { useStore } from "@/store";
+import { Source } from "@/typings";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../pages/_app";
-import { useStore } from "../store";
-import { Source } from "../typings";
 
 export const useSource = (sourceId: string) => {
   const [source, setSource] = useState<Source | null>(null);
@@ -37,7 +37,7 @@ export const useSource = (sourceId: string) => {
       const sourceData = sourceSnapshot.data();
       setSource(sourceData as Source);
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       setError(error.message);
     } finally {
       setLoading(false);

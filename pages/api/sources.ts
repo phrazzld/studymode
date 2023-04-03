@@ -1,6 +1,6 @@
+import { PROMPTS } from "@/prompts";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai";
-import { PROMPTS } from "../../prompts";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
