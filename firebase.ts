@@ -35,12 +35,13 @@ export const createSource = async (
 
     // Save source to users/sources subcollection
     const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
+    const createdAt = new Date();
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
       {
         title: sourceTitle,
         text: source,
-        createdAt: new Date(),
+        createdAt: createdAt,
       }
     );
 
@@ -52,7 +53,12 @@ export const createSource = async (
       },
       body: JSON.stringify({
         contentType: "source",
-        data: { id: sourceDoc.id, title: sourceTitle, text: source },
+        data: {
+          id: sourceDoc.id,
+          title: sourceTitle,
+          text: source,
+          createdAt: createdAt,
+        },
         userId: user.uid,
       }),
     });
@@ -116,6 +122,7 @@ export const generateQuizzes = async (
 
       const { memreId } = await memreResponse.json();
 
+      const createdAt = new Date();
       const quizDoc = await addDoc(
         collection(db, "users", user.uid, "quizzes"),
         {
@@ -123,7 +130,7 @@ export const generateQuizzes = async (
           sourceId: sourceDoc.id,
           question: quiz.question,
           answers,
-          createdAt: new Date(),
+          createdAt: createdAt,
         }
       );
 
@@ -139,6 +146,7 @@ export const generateQuizzes = async (
             id: quizDoc.id,
             question: quiz.question,
             answers: quiz.answers,
+            createdAt: createdAt,
           },
           userId: user.uid,
         }),

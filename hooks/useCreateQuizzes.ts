@@ -32,12 +32,13 @@ export const useCreateQuizzes = (source: string) => {
 
       // Save source to users/sources subcollection
       const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
+      const createdAt = new Date();
       const sourceDoc = await addDoc(
         collection(db, "users", user.uid, "sources"),
         {
           title: sourceTitle,
           text: source,
-          createdAt: new Date(),
+          createdAt: createdAt,
         }
       );
 
@@ -49,7 +50,12 @@ export const useCreateQuizzes = (source: string) => {
         },
         body: JSON.stringify({
           contentType: "source",
-          data: { id: sourceDoc.id, title: sourceTitle, text: source },
+          data: {
+            id: sourceDoc.id,
+            title: sourceTitle,
+            text: source,
+            createdAt: createdAt,
+          },
           userId: user.uid,
         }),
       });
