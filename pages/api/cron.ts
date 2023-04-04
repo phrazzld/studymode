@@ -1,4 +1,9 @@
-export default async function handler(req, res) {
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default async function handler(
+  _req: NextApiRequest,
+  _res: NextApiResponse
+) {
   const query = new URLSearchParams({
     query: "keepalive",
     userId: "keepalive",
