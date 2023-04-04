@@ -4,7 +4,16 @@ import { auth } from "@/pages/_app";
 import { useStore } from "@/store";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faBookOpen,
+  faList,
+  faPlus,
+  faSearch,
+  faSignInAlt,
+  faSignOutAlt,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,25 +33,6 @@ export default function Header() {
     setIsOpen(!isOpen);
   };
 
-  const testQuery = async () => {
-    if (!userRefs?.firebaseId) return;
-
-    const query = new URLSearchParams({
-      query: "protein",
-      userId: userRefs.firebaseId,
-    });
-    const response = await fetch(`/api/embeddings?${query}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    console.log(data);
-  };
-
-  // TODO: Collapse Sources and Quizzes into Content/Search/Something
-  // TODO: Write that component to use Pinecone for semantic search of sources and quizzes
   return (
     <header className="bg-blue-500">
       <nav className="container mx-auto px-6 py-4">
@@ -55,26 +45,33 @@ export default function Header() {
               <></>
             ) : userRefs?.firebaseId ? (
               <>
-                <button onClick={testQuery} className="focus:outline-none">
-                  Test Query
-                </button>
                 <Link href="/quizzes/new">
                   <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                    <FontAwesomeIcon icon={faPlus} className="mr-2" />
                     Create
+                  </p>
+                </Link>
+                <Link href="/search">
+                  <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                    <FontAwesomeIcon icon={faSearch} className="mr-2" />
+                    Search
                   </p>
                 </Link>
                 <Link href="/sources">
                   <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                    <FontAwesomeIcon icon={faBookOpen} className="mr-2" />
                     Sources
                   </p>
                 </Link>
                 <Link href="/quizzes">
                   <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                    <FontAwesomeIcon icon={faList} className="mr-2" />
                     Quizzes
                   </p>
                 </Link>
                 <Link href="#" onClick={signOut}>
                   <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                    <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
                     Sign Out
                   </p>
                 </Link>
@@ -82,6 +79,7 @@ export default function Header() {
             ) : (
               <Link href="/auth">
                 <p className="text-xl text-white p-5 transition ease-in-out duration-200 hover:text-blue-300">
+                  <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />
                   Sign In
                 </p>
               </Link>
