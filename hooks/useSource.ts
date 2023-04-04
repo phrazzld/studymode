@@ -30,7 +30,7 @@ export const useSource = (sourceId: string) => {
       );
       const sourceSnapshot = await getDoc(sourceRef);
       if (!sourceSnapshot.exists()) {
-        console.log("No source found.");
+        console.warn("No source found.");
         setSource(null);
         return;
       }

@@ -141,7 +141,6 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
         vector: embedding
       }
     });
-    console.log("response:", response)
     res.status(200).json(response);
   } catch (error: any) {
     console.error(error);

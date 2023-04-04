@@ -24,7 +24,7 @@ export const useQuiz = (quizId: string) => {
       const quizRef = doc(db, "users", userRefs.firebaseId, "quizzes", quizId);
       const quizSnapshot = await getDoc(quizRef);
       if (!quizSnapshot.exists()) {
-        console.log("No quiz found.");
+        console.warn("No quiz found.");
         setQuiz(null);
         return;
       }

@@ -271,7 +271,7 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
     try {
       setIsGenerating(true);
       if (!auth.currentUser) {
-        console.log("No user logged in");
+        console.warn("No user logged in");
         return;
       }
 

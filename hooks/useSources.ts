@@ -29,7 +29,7 @@ export const useSources = () => {
       );
       const sourcesSnapshot = await getDocs(sourcesQuery);
       if (sourcesSnapshot.empty) {
-        console.log("No sources found.");
+        console.warn("No sources found.");
       }
       sourcesSnapshot.forEach((snap: any) => {
         ss.push({ id: snap.id, ...snap.data() });

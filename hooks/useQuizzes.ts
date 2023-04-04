@@ -27,7 +27,7 @@ export const useQuizzes = () => {
       );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {
-        console.log("No quizzes found.");
+        console.warn("No quizzes found.");
       }
       quizzesSnapshot.forEach((snap: any) => {
         qs.push({ id: snap.id, ...snap.data() });
