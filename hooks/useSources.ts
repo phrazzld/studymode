@@ -4,7 +4,6 @@ import { Source } from "@/typings";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
-// TODO: Paginate
 export const useSources = () => {
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +29,7 @@ export const useSources = () => {
       );
       const sourcesSnapshot = await getDocs(sourcesQuery);
       if (sourcesSnapshot.empty) {
-        console.log("No sources found.");
+        console.warn("No sources found.");
       }
       sourcesSnapshot.forEach((snap: any) => {
         ss.push({ id: snap.id, ...snap.data() });

@@ -108,7 +108,6 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-// TODO: Error handling
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

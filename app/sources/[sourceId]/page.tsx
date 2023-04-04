@@ -37,6 +37,18 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
       const sourceRef = doc(userRef, "sources", sourceId);
       await deleteDoc(sourceRef);
 
+      // Delete embedding from Pinecone index
+      await fetch("/api/embeddings", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: sourceId,
+          userId: auth.currentUser.uid,
+        }),
+      });
+
       // Redirect to sources page
       window.location.href = "/sources";
     } catch (err: any) {

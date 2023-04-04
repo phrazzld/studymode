@@ -44,7 +44,7 @@ export const useRecommendedQuizzes = () => {
       const memreIds = data.data.data.map((item: any) => item.id);
 
       if (memreIds.length === 0) {
-        console.log("No quizzes to study");
+        console.warn("No quizzes to study");
         setQuizzes([]);
         return;
       }
@@ -69,7 +69,7 @@ export const useRecommendedQuizzes = () => {
       );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {
-        console.log("No quizzes found.");
+        console.warn("No quizzes found.");
       }
       quizzesSnapshot.forEach((snap: any) => {
         qs.push({ id: snap.id, ...snap.data() });

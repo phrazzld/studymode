@@ -97,6 +97,8 @@ export default function CreateQuiz() {
   );
 }
 
+const MAX_CLASSIC_SOURCE_LENGTH = 2500
+
 function ClassicForm() {
   const [source, setSource] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -110,8 +112,8 @@ function ClassicForm() {
   };
 
   const handleCreateQuizzes = (): void => {
-    if (source.length > 1000) {
-      setValidationError("Source content must be less than 1000 characters");
+    if (source.length > MAX_CLASSIC_SOURCE_LENGTH) {
+      setValidationError(`Source content must be less than ${MAX_CLASSIC_SOURCE_LENGTH} characters`);
     } else {
       setValidationError("");
       createQuizzes();
@@ -160,12 +162,12 @@ function ClassicForm() {
             </div>
             <div
               className={`p-2 rounded-lg text-sm ${
-                source.length > 1000
+                source.length > MAX_CLASSIC_SOURCE_LENGTH
                   ? "bg-red-100 text-red-500"
                   : "bg-gray-100 text-gray-500"
               }`}
             >
-              {source.length}/1000
+              {source.length}/{MAX_CLASSIC_SOURCE_LENGTH}
             </div>
           </>
         )}

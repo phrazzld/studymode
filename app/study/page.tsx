@@ -43,7 +43,6 @@ export default function Study() {
   }
 
   const submitAnswer = (answer: Answer) => {
-    console.log("Submitting answer", answer);
     setCorrect(answer.correct);
     if (answer.correct) {
       setCorrectCount(correctCount + 1);

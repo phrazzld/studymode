@@ -16,7 +16,7 @@ export const useCreateQuizzes = (source: string) => {
       setError(null);
       setLoading(true);
       if (!auth.currentUser) {
-        console.log("No user logged in");
+        console.warn("No user logged in");
         return;
       }
 
@@ -31,14 +31,34 @@ export const useCreateQuizzes = (source: string) => {
       await getDoc(doc(db, "users", user.uid));
 
       // Save source to users/sources subcollection
+      const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
+      const createdAt = new Date();
       const sourceDoc = await addDoc(
         collection(db, "users", user.uid, "sources"),
         {
-          title: source.split(" ").slice(0, 5).join(" ").concat("..."),
+          title: sourceTitle,
           text: source,
-          createdAt: new Date(),
+          createdAt: createdAt,
         }
       );
+
+      // Add source to Pinecone index
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "source",
+          data: {
+            id: sourceDoc.id,
+            title: sourceTitle,
+            text: source,
+            createdAt: createdAt,
+          },
+          userId: user.uid,
+        }),
+      });
 
       // Create quizzes
       const qs = await generateQuizzes(source, sourceDoc, userRefs.memreId);

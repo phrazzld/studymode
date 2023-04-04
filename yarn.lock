@@ -954,6 +954,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@pinecone-database/pinecone@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@pinecone-database/pinecone/-/pinecone-0.0.12.tgz#c40c10464c04c9e2f31fe363c1785177fe3f4868"
+  integrity sha512-YI9IQ7/0k6jI+NUyTD+I2BvwUGhOMRgMpx/qx/v5t5Cm31vSdnXEgGfh9jILUpi/+j59vtK+O5rB+pV5v1L15w==
+  dependencies:
+    cross-fetch "^3.1.5"
+
 "@popperjs/core@^2.11.6":
   version "2.11.6"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
@@ -1514,6 +1521,13 @@ cosmiconfig@^7.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
     yaml "^1.10.0"
+
+cross-fetch@^3.1.5:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.5.tgz#e1389f44d9e7ba767907f7af8454787952ab534f"
+  integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
+  dependencies:
+    node-fetch "2.6.7"
 
 css-color-keywords@^1.0.0:
   version "1.0.0"

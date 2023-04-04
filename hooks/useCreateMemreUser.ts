@@ -12,7 +12,7 @@ export const useCreateMemreUser = () => {
       setError(null);
       setLoading(true);
       if (!auth.currentUser) {
-        console.log("No user logged in");
+        console.warn("No user logged in");
         return null;
       }
 

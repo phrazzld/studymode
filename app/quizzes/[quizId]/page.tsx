@@ -32,6 +32,18 @@ export default function QuizPage({ params: { quizId } }: PageProps) {
       const quizRef = doc(userRef, "quizzes", quizId);
       await deleteDoc(quizRef);
 
+      // Delete embedding from Pinecone index
+      await fetch("/api/embeddings", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: quizId,
+          userId: auth.currentUser.uid,
+        }),
+      });
+
       // Redirect to quizzes page
       window.location.href = "/quizzes";
     } catch (err: any) {

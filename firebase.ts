@@ -34,14 +34,34 @@ export const createSource = async (
     const { source } = await response.json();
 
     // Save source to users/sources subcollection
+    const sourceTitle = source.split(" ").slice(0, 5).join(" ").concat("...");
+    const createdAt = new Date();
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
       {
-        title: source.split(" ").slice(0, 5).join(" ").concat("..."),
+        title: sourceTitle,
         text: source,
-        createdAt: new Date(),
+        createdAt: createdAt,
       }
     );
+
+    // Add source to Pinecone index
+    await fetch("/api/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentType: "source",
+        data: {
+          id: sourceDoc.id,
+          title: sourceTitle,
+          text: source,
+          createdAt: createdAt,
+        },
+        userId: user.uid,
+      }),
+    });
 
     return { sourceText: source, sourceDoc };
   } catch (error: any) {
@@ -102,12 +122,34 @@ export const generateQuizzes = async (
 
       const { memreId } = await memreResponse.json();
 
-      await addDoc(collection(db, "users", user.uid, "quizzes"), {
-        memreId: memreId,
-        sourceId: sourceDoc.id,
-        question: quiz.question,
-        answers,
-        createdAt: new Date(),
+      const createdAt = new Date();
+      const quizDoc = await addDoc(
+        collection(db, "users", user.uid, "quizzes"),
+        {
+          memreId: memreId,
+          sourceId: sourceDoc.id,
+          question: quiz.question,
+          answers,
+          createdAt: createdAt,
+        }
+      );
+
+      // Add quiz to Pinecone index
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "quiz",
+          data: {
+            id: quizDoc.id,
+            question: quiz.question,
+            answers: quiz.answers,
+            createdAt: createdAt,
+          },
+          userId: user.uid,
+        }),
       });
     });
 

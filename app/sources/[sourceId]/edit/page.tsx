@@ -42,6 +42,19 @@ export default function EditSourcePage({ params: { sourceId } }: PageProps) {
       const sourceRef = doc(userRef, "sources", sourceId);
       await setDoc(sourceRef, { title, text }, { merge: true });
 
+      // Update Pinecone embedding
+      await fetch("/api/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType: "source",
+          data: { id: sourceId, title: title, text: text },
+          userId: auth.currentUser.uid,
+        }),
+      });
+
       // Redirect to sources page
       window.location.href = "/sources";
     } catch (err: any) {

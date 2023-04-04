@@ -3,7 +3,6 @@ import { useStore } from "@/store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
-// TODO: Paginate
 export const useQuizzes = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +27,7 @@ export const useQuizzes = () => {
       );
       const quizzesSnapshot = await getDocs(quizzesQuery);
       if (quizzesSnapshot.empty) {
-        console.log("No quizzes found.");
+        console.warn("No quizzes found.");
       }
       quizzesSnapshot.forEach((snap: any) => {
         qs.push({ id: snap.id, ...snap.data() });

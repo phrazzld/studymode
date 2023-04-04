@@ -16,7 +16,7 @@ export const useSmartCreateQuizzes = (prompt: string) => {
       setError(null);
       setLoading(true);
       if (!auth.currentUser) {
-        console.log("No user logged in");
+        console.warn("No user logged in");
         return;
       }
 
@@ -31,14 +31,18 @@ export const useSmartCreateQuizzes = (prompt: string) => {
       await getDoc(doc(db, "users", user.uid));
 
       // Create source
+      console.debug("Creating the source...")
       const { sourceText, sourceDoc } = await createSource(prompt);
+      console.debug("Source created.")
 
       // Create quizzes
+      console.debug("Creating the quizzes...")
       const quizzes = await generateQuizzes(
         sourceText,
         sourceDoc,
         userRefs.memreId
       );
+      console.debug("Quizzes created.")
 
       setQuizzes(quizzes);
     } catch (err: any) {

@@ -14,6 +14,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mui/material": "^5.11.13",
     "@mui/styled-engine-sc": "^5.11.11",
+    "@pinecone-database/pinecone": "^0.0.12",
     "encoding": "^0.1.13",
     "firebase": "^9.16.0",
     "firebase-admin": "^11.5.0",
