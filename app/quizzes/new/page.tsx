@@ -5,12 +5,16 @@ import { useCreateQuizzes } from "@/hooks/useCreateQuizzes";
 import { useSmartCreateQuizzes } from "@/hooks/useSmartCreateQuizzes";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AiOutlineFilePdf } from "react-icons/ai";
 import { BsLightbulb } from "react-icons/bs";
 import { GrTextAlignFull } from "react-icons/gr";
+
+const PDFUploadForm = dynamic(() => import("@/app/quizzes/new/PDFUploadForm"), {
+  ssr: false,
+});
 
 type CreateOption = "classic" | "smart" | "pdf";
 
@@ -287,86 +291,6 @@ function SmartForm() {
               View Quizzes
             </p>
           </Link>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PDFUploadForm() {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      setPdfFile(file);
-      setUploadError(null);
-    } else {
-      setPdfFile(null);
-      setUploadError("Invalid file type. Please select a PDF file.");
-    }
-  };
-
-  const handleUpload = async () => {
-    if (pdfFile) {
-      try {
-        const storage = getStorage();
-        const storageRef = ref(storage, pdfFile.name);
-        await uploadBytes(storageRef, pdfFile);
-        setUploadSuccess(true);
-      } catch (error: any) {
-        setUploadError(error.message);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (uploadSuccess) {
-      setUploadProgress(0);
-      setPdfFile(null);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
-    }
-  }, [uploadSuccess]);
-
-  return (
-    <div className="bg-white p-8 rounded-lg shadow-md">
-      <input
-        ref={inputRef}
-        type="file"
-        className="mb-4"
-        accept="application/pdf"
-        onChange={handleFileChange}
-      />
-      {pdfFile && (
-        <div className="flex items-center justify-between mb-4">
-          <div className="truncate w-64">{pdfFile.name}</div>
-          <button
-            className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600"
-            onClick={handleUpload}
-          >
-            Upload PDF
-          </button>
-        </div>
-      )}
-      {uploadProgress > 0 && (
-        <Box sx={{ width: "100%", py: 2 }}>
-          <LinearProgress variant="determinate" value={uploadProgress} />
-        </Box>
-      )}
-      {uploadError && (
-        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg">
-          <p>An error occurred: {uploadError}</p>
-        </div>
-      )}
-      {uploadSuccess && (
-        <div className="mt-4 bg-green-100 border border-green-400 text-green-700 p-4 rounded-lg">
-          <p>PDF successfully uploaded! We're processing your quizzes.</p>
         </div>
       )}
     </div>
