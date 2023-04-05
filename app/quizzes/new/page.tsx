@@ -5,13 +5,17 @@ import { useCreateQuizzes } from "@/hooks/useCreateQuizzes";
 import { useSmartCreateQuizzes } from "@/hooks/useSmartCreateQuizzes";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AiOutlineFilePdf } from "react-icons/ai";
 import { BsLightbulb } from "react-icons/bs";
 import { GrTextAlignFull } from "react-icons/gr";
 
+type CreateOption = "classic" | "smart" | "pdf";
+
 type CreateOptionProps = {
-  selectedOption: "classic" | "smart" | null;
+  selectedOption: CreateOption | null;
   onSelect: () => void;
 };
 
@@ -59,19 +63,38 @@ function SmartCreateOption({ selectedOption, onSelect }: CreateOptionProps) {
   );
 }
 
-export default function CreateQuiz() {
-  const [selectedOption, setSelectedOption] = useState<
-    "classic" | "smart" | null
-  >(null);
+function PDFCreateOption({ selectedOption, onSelect }: CreateOptionProps) {
+  return (
+    <div
+      className={`${
+        selectedOption === "pdf" ? "bg-blue-500 text-white" : "bg-white"
+      } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`}
+      onClick={onSelect}
+    >
+      <div className="flex flex-row items-center justify-center mb-4">
+        <AiOutlineFilePdf className="text-3xl mr-3" />
+        <h2 className="text-2xl font-bold">PDF</h2>
+      </div>
+      <p className={selectedOption === "pdf" ? "text-white" : "text-gray-700"}>
+        Upload a PDF, and we'll extract quizzes from it.
+      </p>
+    </div>
+  );
+}
 
-  const handleOptionClick = (option: "classic" | "smart"): void => {
+export default function CreateQuiz() {
+  const [selectedOption, setSelectedOption] = useState<CreateOption | null>(
+    null
+  );
+
+  const handleOptionClick = (option: CreateOption): void => {
     setSelectedOption(option);
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
       <h1 className="text-4xl font-bold my-8">Create Quizzes</h1>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-screen-lg my-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 max-w-screen-lg my-8">
         <ClassicCreateOption
           selectedOption={selectedOption}
           onSelect={() => handleOptionClick("classic")}
@@ -79,6 +102,10 @@ export default function CreateQuiz() {
         <SmartCreateOption
           selectedOption={selectedOption}
           onSelect={() => handleOptionClick("smart")}
+        />
+        <PDFCreateOption
+          selectedOption={selectedOption}
+          onSelect={() => handleOptionClick("pdf")}
         />
       </div>
 
@@ -88,6 +115,8 @@ export default function CreateQuiz() {
             <ClassicForm />
           ) : selectedOption === "smart" ? (
             <SmartForm />
+          ) : selectedOption === "pdf" ? (
+            <PDFUploadForm />
           ) : (
             <></>
           )}
@@ -97,7 +126,7 @@ export default function CreateQuiz() {
   );
 }
 
-const MAX_CLASSIC_SOURCE_LENGTH = 2500
+const MAX_CLASSIC_SOURCE_LENGTH = 2500;
 
 function ClassicForm() {
   const [source, setSource] = useState("");
@@ -113,7 +142,9 @@ function ClassicForm() {
 
   const handleCreateQuizzes = (): void => {
     if (source.length > MAX_CLASSIC_SOURCE_LENGTH) {
-      setValidationError(`Source content must be less than ${MAX_CLASSIC_SOURCE_LENGTH} characters`);
+      setValidationError(
+        `Source content must be less than ${MAX_CLASSIC_SOURCE_LENGTH} characters`
+      );
     } else {
       setValidationError("");
       createQuizzes();
@@ -256,6 +287,86 @@ function SmartForm() {
               View Quizzes
             </p>
           </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PDFUploadForm() {
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      setPdfFile(file);
+      setUploadError(null);
+    } else {
+      setPdfFile(null);
+      setUploadError("Invalid file type. Please select a PDF file.");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (pdfFile) {
+      try {
+        const storage = getStorage();
+        const storageRef = ref(storage, pdfFile.name);
+        await uploadBytes(storageRef, pdfFile);
+        setUploadSuccess(true);
+      } catch (error: any) {
+        setUploadError(error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (uploadSuccess) {
+      setUploadProgress(0);
+      setPdfFile(null);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+    }
+  }, [uploadSuccess]);
+
+  return (
+    <div className="bg-white p-8 rounded-lg shadow-md">
+      <input
+        ref={inputRef}
+        type="file"
+        className="mb-4"
+        accept="application/pdf"
+        onChange={handleFileChange}
+      />
+      {pdfFile && (
+        <div className="flex items-center justify-between mb-4">
+          <div className="truncate w-64">{pdfFile.name}</div>
+          <button
+            className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600"
+            onClick={handleUpload}
+          >
+            Upload PDF
+          </button>
+        </div>
+      )}
+      {uploadProgress > 0 && (
+        <Box sx={{ width: "100%", py: 2 }}>
+          <LinearProgress variant="determinate" value={uploadProgress} />
+        </Box>
+      )}
+      {uploadError && (
+        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg">
+          <p>An error occurred: {uploadError}</p>
+        </div>
+      )}
+      {uploadSuccess && (
+        <div className="mt-4 bg-green-100 border border-green-400 text-green-700 p-4 rounded-lg">
+          <p>PDF successfully uploaded! We're processing your quizzes.</p>
         </div>
       )}
     </div>
