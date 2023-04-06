@@ -1,4 +1,3 @@
-import { PROMPTS } from "@/prompts";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai";
 
@@ -67,39 +66,37 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
 
-    const prompt = PROMPTS.GENERATE_QUIZ.replace("{INPUT}", source);
-
     const completionConfig: CreateChatCompletionRequest = {
       model: "gpt-3.5-turbo",
-      max_tokens: 2500,
-      temperature: 0.6,
+      max_tokens: 3000,
+      temperature: 0.1,
       messages: [
         {
           role: "system",
-          content: PROMPTS.QUIZ_GEN_SYS_INIT,
+          content:
+            "You are FormattingGPT. Users give you text, and if any of it is formatted improperly you correct it. You are not conversational, you do not ever respond with anything other than the reformatted text. If the text has perfect formatting, return the text unchanged.",
         },
         {
           role: "user",
-          content: prompt,
+          content: source,
         },
       ],
     };
     const response = await openai.createChatCompletion(completionConfig);
 
     if (!isValidOpenAiResponse(response)) {
-      res.status(500).json({ error: "Failed to generate quiz" });
+      res.status(500).json({ error: "Failed to format text." });
       return;
     }
 
-    const quizzes = JSON.parse(
-      response.data.choices[0].message?.content.trim() || ""
-    );
+    const formattedText =
+      response.data.choices[0].message?.content.trim() || "";
 
-    res.status(200).json({ quizzes });
+    res.status(200).json({ formattedText });
   } catch (err: any) {
-    console.error("Error generating quiz");
+    console.error("Error formatting text.");
     console.error(err);
-    res.status(500).json({ error: "Failed to generate quiz" });
+    res.status(500).json({ error: "Failed to format text." });
     return;
   }
 };
