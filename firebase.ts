@@ -126,7 +126,7 @@ export const generateQuizzes = async (
       const quizDoc = await addDoc(
         collection(db, "users", user.uid, "quizzes"),
         {
-          memreId: memreId,
+          memreId: memreId || "",
           sourceId: sourceDoc.id,
           question: quiz.question,
           answers,

@@ -96,6 +96,19 @@ const addSourceToIndex = async (source: Source, userId: string) => {
   }
 };
 
+type AddPdfChunkToIndexParams = {
+  chunk: string;
+  userId: string;
+}
+
+const addPdfChunkToIndex = async (params: AddPdfChunkToIndexParams) => {
+  try {
+    console.log("STUB")
+  } catch (error: any) {
+    console.error(error)
+  }
+}
+
 const deleteFromIndex = async (id: string, userId: string) => {
   try {
     // Initialize Pinecone and get the index
@@ -158,6 +171,10 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
         break;
       case "quiz":
         await addQuizToIndex(data, userId);
+        res.status(200).json({ message: "Success" });
+        break;
+      case "chunk":
+        await addPdfChunkToIndex({ chunk: data, userId });
         res.status(200).json({ message: "Success" });
         break;
       default:

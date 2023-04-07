@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "cp node_modules/pdfjs-dist/legacy/build/pdf.worker.js public/pdf-worker.js"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -22,6 +23,7 @@
     "formik": "^2.2.9",
     "next": "latest",
     "openai": "^3.2.1",
+    "pdfjs-dist": "^3.5.141",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",

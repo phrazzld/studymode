@@ -5,13 +5,21 @@ import { useCreateQuizzes } from "@/hooks/useCreateQuizzes";
 import { useSmartCreateQuizzes } from "@/hooks/useSmartCreateQuizzes";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
+import { AiOutlineFilePdf } from "react-icons/ai";
 import { BsLightbulb } from "react-icons/bs";
 import { GrTextAlignFull } from "react-icons/gr";
 
+const PDFUploadForm = dynamic(() => import("@/app/quizzes/new/PDFUploadForm"), {
+  ssr: false,
+});
+
+type CreateOption = "classic" | "smart" | "pdf";
+
 type CreateOptionProps = {
-  selectedOption: "classic" | "smart" | null;
+  selectedOption: CreateOption | null;
   onSelect: () => void;
 };
 
@@ -59,19 +67,38 @@ function SmartCreateOption({ selectedOption, onSelect }: CreateOptionProps) {
   );
 }
 
-export default function CreateQuiz() {
-  const [selectedOption, setSelectedOption] = useState<
-    "classic" | "smart" | null
-  >(null);
+function PDFCreateOption({ selectedOption, onSelect }: CreateOptionProps) {
+  return (
+    <div
+      className={`${
+        selectedOption === "pdf" ? "bg-blue-500 text-white" : "bg-white"
+      } flex items-center justify-center flex-col p-8 rounded-lg shadow-lg cursor-pointer`}
+      onClick={onSelect}
+    >
+      <div className="flex flex-row items-center justify-center mb-4">
+        <AiOutlineFilePdf className="text-3xl mr-3" />
+        <h2 className="text-2xl font-bold">PDF</h2>
+      </div>
+      <p className={selectedOption === "pdf" ? "text-white" : "text-gray-700"}>
+        Upload a PDF, and we'll extract quizzes from it.
+      </p>
+    </div>
+  );
+}
 
-  const handleOptionClick = (option: "classic" | "smart"): void => {
+export default function CreateQuiz() {
+  const [selectedOption, setSelectedOption] = useState<CreateOption | null>(
+    null
+  );
+
+  const handleOptionClick = (option: CreateOption): void => {
     setSelectedOption(option);
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
       <h1 className="text-4xl font-bold my-8">Create Quizzes</h1>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-screen-lg my-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 max-w-screen-lg my-8">
         <ClassicCreateOption
           selectedOption={selectedOption}
           onSelect={() => handleOptionClick("classic")}
@@ -79,6 +106,10 @@ export default function CreateQuiz() {
         <SmartCreateOption
           selectedOption={selectedOption}
           onSelect={() => handleOptionClick("smart")}
+        />
+        <PDFCreateOption
+          selectedOption={selectedOption}
+          onSelect={() => handleOptionClick("pdf")}
         />
       </div>
 
@@ -88,6 +119,8 @@ export default function CreateQuiz() {
             <ClassicForm />
           ) : selectedOption === "smart" ? (
             <SmartForm />
+          ) : selectedOption === "pdf" ? (
+            <PDFUploadForm />
           ) : (
             <></>
           )}
@@ -97,7 +130,7 @@ export default function CreateQuiz() {
   );
 }
 
-const MAX_CLASSIC_SOURCE_LENGTH = 2500
+const MAX_CLASSIC_SOURCE_LENGTH = 2500;
 
 function ClassicForm() {
   const [source, setSource] = useState("");
@@ -113,7 +146,9 @@ function ClassicForm() {
 
   const handleCreateQuizzes = (): void => {
     if (source.length > MAX_CLASSIC_SOURCE_LENGTH) {
-      setValidationError(`Source content must be less than ${MAX_CLASSIC_SOURCE_LENGTH} characters`);
+      setValidationError(
+        `Source content must be less than ${MAX_CLASSIC_SOURCE_LENGTH} characters`
+      );
     } else {
       setValidationError("");
       createQuizzes();
