@@ -44,3 +44,5 @@ next-env.d.ts
 
 # asdf
 .tool-versions
+
+public/pdf-worker.js

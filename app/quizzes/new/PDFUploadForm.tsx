@@ -129,9 +129,9 @@ export default function PDFUploadForm() {
     let formattedChunk = formattedResponseJson.formattedText;
 
     // Then append the PDF title and link
+    let url = ""
     if (fileRef) {
-      const url = await getDownloadURL(fileRef);
-      console.log("url:", url)
+      url = await getDownloadURL(fileRef);
       formattedChunk = formattedChunk.concat(`\n\nSource PDF: ${url}`);
     }
 
@@ -157,6 +157,7 @@ export default function PDFUploadForm() {
       {
         title: sourceTitle,
         text: formattedChunk,
+        link: url,
         createdAt: createdAt,
       }
     );
