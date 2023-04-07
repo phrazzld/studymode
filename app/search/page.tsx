@@ -119,9 +119,9 @@ const renderResult = (result: PineconeResult) => {
     >
       <Link href={`/${contentType === "source" ? "sources" : "quizzes"}/${id}`}>
         <div className="flex items-center justify-between">
-          <button className="text-blue-500 font-medium text-lg hover:underline mb-2">
+          <p className="text-blue-500 font-medium text-lg hover:underline mb-2">
             {title}
-          </button>
+          </p>
           <p className="text-sm text-gray-400">
             {contentType === "source" ? (
               <FontAwesomeIcon icon={faBookOpen} />
