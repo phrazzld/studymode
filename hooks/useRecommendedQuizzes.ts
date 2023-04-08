@@ -41,6 +41,25 @@ export const useRecommendedQuizzes = () => {
       }
 
       const data = await response.json();
+
+      if (!data.data.data) {
+        // Get ten random quizzes from Firestore
+        // NOTE: This is a fallback in case the Learning Engine is down or we've hit our quota
+        const quizzesQuery = query(
+          collection(db, "users", userRefs.firebaseId, "quizzes")
+        );
+        const quizzesSnapshot = await getDocs(quizzesQuery);
+        if (quizzesSnapshot.empty) {
+          console.warn("No quizzes found.");
+        }
+        const qs: any[] = [];
+        quizzesSnapshot.forEach((snap: any) => {
+          qs.push({ id: snap.id, ...snap.data() });
+        });
+        setQuizzes(shuffleArray(qs).slice(0, 10));
+        return;
+      }
+
       const memreIds = data.data.data.map((item: any) => item.id);
 
       if (memreIds.length === 0) {

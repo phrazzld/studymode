@@ -2,13 +2,35 @@ import { db } from "@/pages/_app";
 import { useStore } from "@/store";
 import { Source } from "@/typings";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { getDownloadURL, getStorage, listAll, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
 
 export const useSources = () => {
+  const storage = getStorage();
   const [sources, setSources] = useState<Source[]>([]);
+  const [pdfs, setPdfs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { userRefs } = useStore();
+
+  const fetchPDFs = async () => {
+    try {
+      if (!userRefs || !userRefs.firebaseId) {
+        return;
+      }
+
+      const userPdfRef = ref(storage, `${userRefs.firebaseId}/`);
+      const pdfList = await listAll(userPdfRef);
+      const pdfPromises = pdfList.items.map((pdfItem) =>
+        getDownloadURL(pdfItem)
+      );
+      const pdfURLs = await Promise.all(pdfPromises);
+      console.log("pdfURLs", pdfURLs);
+      setPdfs(pdfURLs);
+    } catch (error: any) {
+      setError(error);
+    }
+  };
 
   // Fetch sources from Firestore
   const fetchSources = async () => {
@@ -44,7 +66,8 @@ export const useSources = () => {
 
   useEffect(() => {
     fetchSources();
+    fetchPDFs();
   }, [JSON.stringify(userRefs)]);
 
-  return { sources, loading, error };
+  return { sources, pdfs, loading, error };
 };

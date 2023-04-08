@@ -58,16 +58,16 @@ export default function PDFUploadForm() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { userRefs } = useStore();
-  /* const [title, setTitle] = useState(""); */
-  /* const [objectives, setObjectives] = useState(""); */
-  /**/
-  /* const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => { */
-  /*   setTitle(e.target.value); */
-  /* }; */
-  /**/
-  /* const handleObjectivesChange = (e: React.ChangeEvent<HTMLInputElement>) => { */
-  /*   setObjectives(e.target.value); */
-  /* }; */
+  const [title, setTitle] = useState("");
+  const [objectives, setObjectives] = useState("");
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+
+  const handleObjectivesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setObjectives(e.target.value);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -95,6 +95,15 @@ export default function PDFUploadForm() {
         const storageLocation = `${id}-${pdfFile.name}`;
         storageRef = ref(storage, `${auth.currentUser.uid}/${storageLocation}`);
         await uploadBytes(storageRef, pdfFile);
+
+        // Add to Firestore
+        const createdAt = new Date();
+        const user = auth.currentUser;
+        await addDoc(collection(db, "users", user.uid, "sources"), {
+          title: title || pdfFile.name,
+          createdAt,
+          link: storageLocation,
+        })
       } catch (error: any) {
         setUploadError(error.message);
       }
@@ -103,17 +112,13 @@ export default function PDFUploadForm() {
     return storageRef;
   };
 
-  const processChunk = async (chunk: string[], fileRef: any) => {
+  const processChunk = async (chunk: string[], fileRef: any, chunkNum: number) => {
     if (!auth.currentUser) {
       console.warn("No user logged in.");
       return;
     }
 
     const user = auth.currentUser;
-
-    // Perform your operations on the chunk of 1000 words here
-    console.log("Processing chunk...");
-    console.log(chunk.join(" "));
 
     // Format the text first, since the text extraction might be sloppy
     const formattingResponse = await fetch("/api/format", {
@@ -146,11 +151,12 @@ export default function PDFUploadForm() {
     await getDoc(doc(db, "users", user.uid));
 
     // Save source to users/sources subcollection
-    const sourceTitle = formattedChunk
-      .split(" ")
-      .slice(0, 5)
-      .join(" ")
-      .concat("...");
+    /* const sourceTitle = formattedChunk */
+    /*   .split(" ") */
+    /*   .slice(0, 5) */
+    /*   .join(" ") */
+    /*   .concat("..."); */
+    const sourceTitle = `${title} - Chunk #${chunkNum}`
     const createdAt = new Date();
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
@@ -174,6 +180,7 @@ export default function PDFUploadForm() {
           id: sourceDoc.id,
           title: sourceTitle,
           text: formattedChunk,
+          link: url,
           createdAt: createdAt,
         },
         userId: user.uid,
@@ -210,6 +217,7 @@ export default function PDFUploadForm() {
       let buffer: string[] = [];
 
       // Iterate through the pages and process chunks as they become available
+      let chunkNum = 1;
       for (let i = 1; i <= pdf.numPages; i++) {
         setUploadProgress(((i-1) / pdf.numPages) * 100);
         const page = await pdf.getPage(i);
@@ -222,14 +230,14 @@ export default function PDFUploadForm() {
 
         let chunkWordCount = 0;
         let chunkStartIndex = 0;
-
         for (let j = 0; j < buffer.length; j++) {
           const sentenceWordCount = buffer[j].split(/\s+/).length;
           chunkWordCount += sentenceWordCount;
 
           if (chunkWordCount > 500) {
             const chunk = buffer.slice(chunkStartIndex, j);
-            await processChunk(chunk, storageRef);
+            await processChunk(chunk, storageRef, chunkNum);
+            chunkNum++;
 
             chunkStartIndex = j;
             chunkWordCount = sentenceWordCount;
@@ -242,7 +250,7 @@ export default function PDFUploadForm() {
 
       // Process any remaining words in the buffer
       if (buffer.length > 0) {
-        await processChunk(buffer, storageRef);
+        await processChunk(buffer, storageRef, chunkNum);
       }
       setUploadSuccess(true);
     } catch (error: any) {
