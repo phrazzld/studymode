@@ -60,13 +60,13 @@ export default function Sources() {
                   <button className="block text-blue-500 font-medium text-lg hover:underline mb-2">
                     {source.title ||
                       source.text
-                        .split(" ")
+                        ?.split(" ")
                         .slice(0, 5)
                         .join(" ")
                         .concat("...")}
                   </button>
                   <p className="text-sm text-gray-700">
-                    {source.text.substring(0, 200)}...
+                    {source.text?.substring(0, 200)}...
                   </p>
                   <div className="flex items-center mt-2">
                     <p className="text-sm text-gray-400 mr-2">

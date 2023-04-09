@@ -99,8 +99,15 @@ export default function SourcePage({ params: { sourceId } }: PageProps) {
         <>
           <h1 className="text-2xl font-medium">
             {source.title ||
-              source.text.split(" ").slice(0, 5).join(" ").concat("...")}
+              source.text?.split(" ").slice(0, 5).join(" ").concat("...")}
           </h1>
+          {source.link && (
+            <Link href={source.link}>
+              <p className="text-lg font-light text-blue-500 hover:underline">
+                {source.link}
+              </p>
+            </Link>
+          )}
           <pre className="text-lg font-light my-4 whitespace-pre-wrap">
             {source.text}
           </pre>

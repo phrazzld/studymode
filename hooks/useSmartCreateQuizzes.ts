@@ -36,7 +36,7 @@ export const useSmartCreateQuizzes = (prompt: string) => {
       // Create quizzes
       const quizzes = await generateQuizzes(
         sourceText,
-        sourceDoc,
+        sourceDoc.id,
         userRefs.memreId
       );
 

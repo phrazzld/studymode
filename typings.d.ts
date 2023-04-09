@@ -22,7 +22,8 @@ export type Answer = {
 
 export type Source = {
   id: string;
-  text: string;
+  text?: string;
   title: string;
+  link?: string;
   createdAt: Date | Timestamp;
 };

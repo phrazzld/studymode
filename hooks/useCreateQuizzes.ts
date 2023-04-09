@@ -61,7 +61,7 @@ export const useCreateQuizzes = (source: string) => {
       });
 
       // Create quizzes
-      const qs = await generateQuizzes(source, sourceDoc, userRefs.memreId);
+      const qs = await generateQuizzes(source, sourceDoc.id, userRefs.memreId);
 
       setQuizzes(qs);
     } catch (err: any) {

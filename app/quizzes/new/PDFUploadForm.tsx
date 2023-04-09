@@ -10,6 +10,11 @@ import { useEffect, useRef, useState } from "react";
 
 GlobalWorkerOptions.workerSrc = "/pdf-worker.js";
 
+type LessonPlanSection = {
+  title: string;
+  text: string;
+};
+
 const getSentences = (text: string): string[] => {
   return text.match(/[^.!?]+[.!?]+(?:\s|$)/g) || [];
 };
@@ -65,7 +70,9 @@ export default function PDFUploadForm() {
     setTitle(e.target.value);
   };
 
-  const handleObjectivesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleObjectivesChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setObjectives(e.target.value);
   };
 
@@ -95,6 +102,7 @@ export default function PDFUploadForm() {
         const storageLocation = `${id}-${pdfFile.name}`;
         storageRef = ref(storage, `${auth.currentUser.uid}/${storageLocation}`);
         await uploadBytes(storageRef, pdfFile);
+        const link = await getDownloadURL(storageRef);
 
         // Add to Firestore
         const createdAt = new Date();
@@ -102,8 +110,8 @@ export default function PDFUploadForm() {
         await addDoc(collection(db, "users", user.uid, "sources"), {
           title: title || pdfFile.name,
           createdAt,
-          link: storageLocation,
-        })
+          link: link,
+        });
       } catch (error: any) {
         setUploadError(error.message);
       }
@@ -112,7 +120,11 @@ export default function PDFUploadForm() {
     return storageRef;
   };
 
-  const processChunk = async (chunk: string[], fileRef: any, chunkNum: number) => {
+  const processChunk = async (
+    chunk: string[],
+    fileRef: any,
+    chunkNum: number
+  ) => {
     if (!auth.currentUser) {
       console.warn("No user logged in.");
       return;
@@ -134,7 +146,7 @@ export default function PDFUploadForm() {
     let formattedChunk = formattedResponseJson.formattedText;
 
     // Then append the PDF title and link
-    let url = ""
+    let url = "";
     if (fileRef) {
       url = await getDownloadURL(fileRef);
       formattedChunk = formattedChunk.concat(`\n\nSource PDF: ${url}`);
@@ -151,12 +163,7 @@ export default function PDFUploadForm() {
     await getDoc(doc(db, "users", user.uid));
 
     // Save source to users/sources subcollection
-    /* const sourceTitle = formattedChunk */
-    /*   .split(" ") */
-    /*   .slice(0, 5) */
-    /*   .join(" ") */
-    /*   .concat("..."); */
-    const sourceTitle = `${title} - Chunk #${chunkNum}`
+    const sourceTitle = `${title} - Chunk #${chunkNum}`;
     const createdAt = new Date();
     const sourceDoc = await addDoc(
       collection(db, "users", user.uid, "sources"),
@@ -186,9 +193,6 @@ export default function PDFUploadForm() {
         userId: user.uid,
       }),
     });
-
-    // Create quizzes
-    await generateQuizzes(formattedChunk, sourceDoc, userRefs.memreId);
   };
 
   const generateQuizzesFromPdf = async () => {
@@ -219,7 +223,7 @@ export default function PDFUploadForm() {
       // Iterate through the pages and process chunks as they become available
       let chunkNum = 1;
       for (let i = 1; i <= pdf.numPages; i++) {
-        setUploadProgress(((i-1) / pdf.numPages) * 100);
+        setUploadProgress(((i - 1) / pdf.numPages) * 100);
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         const pageText = content.items.map((item: any) => item.str).join(" ");
@@ -252,6 +256,69 @@ export default function PDFUploadForm() {
       if (buffer.length > 0) {
         await processChunk(buffer, storageRef, chunkNum);
       }
+
+      const lessonPlanResponse = await fetch("/api/lesson-plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title,
+          objectives: objectives,
+        }),
+      });
+      const { lessonPlan } = await lessonPlanResponse.json();
+      console.log(lessonPlan);
+
+      let sourceIds: string[] = [];
+      lessonPlan.forEach(async (section: LessonPlanSection) => {
+        if (!userRefs?.firebaseId) {
+          console.warn("No firebaseId for current user.");
+          return;
+        }
+        const query = new URLSearchParams({
+          query: section.text,
+          userId: userRefs.firebaseId,
+        });
+        const embeddingsResponse = await fetch(`/api/embeddings?${query}`);
+        const data = await embeddingsResponse.json();
+        // Add the top three matches to sourceIds
+        sourceIds.push(...data.matches.slice(0, 3).map((d: any) => d.id));
+        console.log("data.matches:", data.matches);
+        const matches = data.matches.map((d: any) => ({
+          id: d.id,
+          score: d.score,
+          contentType: d.metadata.type,
+          title: d.metadata.title,
+          createdAt: d.metadata.createdAt,
+        }));
+        console.log("matches:", matches);
+      });
+      sourceIds.forEach(async (sourceId: string) => {
+        if (!userRefs?.memreId) {
+          console.warn("No MemreId for current user.");
+          return;
+        }
+        if (!userRefs?.firebaseId) {
+          console.warn("No FirebaseId for current user.");
+          return;
+        }
+        const sourceRef = doc(
+          db,
+          "users",
+          userRefs.firebaseId,
+          "sources",
+          sourceId
+        );
+        const sourceSnapshot = await getDoc(sourceRef);
+        if (!sourceSnapshot.exists()) {
+          console.warn("No source found.");
+          return;
+        }
+        const sourceData = sourceSnapshot.data();
+        console.log("sourceData:", sourceData);
+        await generateQuizzes(sourceData.text, sourceId, userRefs.memreId);
+      });
       setUploadSuccess(true);
     } catch (error: any) {
       console.error(error);
@@ -279,30 +346,29 @@ export default function PDFUploadForm() {
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-md">
-      {/* <div className="mb-4"> */}
-      {/*   <label htmlFor="title" className="block mb-2"> */}
-      {/*     Title */}
-      {/*   </label> */}
-      {/*   <input */}
-      {/*     id="title" */}
-      {/*     type="text" */}
-      {/*     value={title} */}
-      {/*     onChange={handleTitleChange} */}
-      {/*     className="w-full p-2 border border-gray-300 rounded-lg" */}
-      {/*   /> */}
-      {/* </div> */}
-      {/* <div className="mb-4"> */}
-      {/*   <label htmlFor="learning-objectives" className="block mb-2"> */}
-      {/*     Learning Objectives */}
-      {/*   </label> */}
-      {/*   <input */}
-      {/*     id="learning-objectives" */}
-      {/*     type="text" */}
-      {/*     value={objectives} */}
-      {/*     onChange={handleObjectivesChange} */}
-      {/*     className="w-full p-2 border border-gray-300 rounded-lg" */}
-      {/*   /> */}
-      {/* </div> */}
+      <div className="mb-4">
+        <label htmlFor="title" className="block mb-2">
+          Title
+        </label>
+        <input
+          id="title"
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          className="w-full p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="learning-objectives" className="block mb-2">
+          Learning Objectives
+        </label>
+        <textarea
+          id="learning-objectives"
+          value={objectives}
+          onChange={handleObjectivesChange}
+          className="w-full p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
       {pdfFile ? (
         <div className="flex items-center justify-between mb-4">
           <div className="truncate w-64">{pdfFile.name}</div>
@@ -331,10 +397,13 @@ export default function PDFUploadForm() {
       {uploadProgress > 0 && (
         <Box sx={{ width: "100%", py: 2 }}>
           <LinearProgress variant="determinate" value={uploadProgress} />
-        <div className="mt-4 bg-gray-100 border border-gray-400 text-gray-700 p-4 rounded-lg">
-          <p>Uploading your PDF and generating quizzes from it...</p>
-          <p>This could take a while. Leave this page open. We'll let you know when it finishes.</p>
-        </div>
+          <div className="mt-4 bg-gray-100 border border-gray-400 text-gray-700 p-4 rounded-lg">
+            <p>Uploading your PDF and generating quizzes from it...</p>
+            <p>
+              This could take a while. Leave this page open. We'll let you know
+              when it finishes.
+            </p>
+          </div>
         </Box>
       )}
       {uploadError && (

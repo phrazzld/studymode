@@ -20,12 +20,12 @@ export default function EditSourcePage({ params: { sourceId } }: PageProps) {
 
   useEffect(() => {
     if (source && !text) {
-      setText(source.text);
+      setText(source.text || "");
     }
     if (source && !title) {
       setTitle(
         source.title ||
-          source.text.split(" ").slice(0, 5).join(" ").concat("...")
+          source.text?.split(" ").slice(0, 5).join(" ").concat("...") || ""
       );
     }
   }, [JSON.stringify(source)]);

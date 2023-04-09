@@ -72,7 +72,7 @@ export const createSource = async (
 
 export const generateQuizzes = async (
   sourceText: string,
-  sourceDoc: any,
+  sourceId: string,
   memreUserId: string
 ): Promise<Quiz[]> => {
   try {
@@ -127,7 +127,7 @@ export const generateQuizzes = async (
         collection(db, "users", user.uid, "quizzes"),
         {
           memreId: memreId || "",
-          sourceId: sourceDoc.id,
+          sourceId: sourceId,
           question: quiz.question,
           answers,
           createdAt: createdAt,

@@ -291,7 +291,7 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
       const { sourceText, sourceDoc } = await createSource(input);
 
       // Create quizzes
-      await generateQuizzes(sourceText, sourceDoc, userRefs.memreId);
+      await generateQuizzes(sourceText, sourceDoc.id, userRefs.memreId);
 
       setFinishedGenerating(true);
     } catch (err: any) {
