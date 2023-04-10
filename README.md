@@ -1,29 +1,37 @@
-# studymode
-> Learn smarter, not harder.
+# StudyMode 📚
+> Learn smarter, not harder
 
-studymode is a learning application. Enter some text, and studymode will generate relevant quizzes for you. Take your quizzes any time to review and cement your knowledge.
+StudyMode is an innovative learning app designed to help you learn whatever you want, whenever you want. With the power of NextJS 13, Firebase, Tailwind CSS, OpenAI's APIs, Pinecone, and Memre's Learning Engine API, StudyMode brings the best of technology and learning together.
 
-## Roadmap
+## Features ✨
 
-There's a lot we want to do with studymode, and things are changing faster than ever, so there is no guarantee this roadmap is up-to-date. But broad strokes on features we're working towards:
+1. **Learn from any source:** Enter source text manually, upload a PDF, or just provide a topic, and StudyMode will generate quizzes to help you learn from the content.
+2. **Semantic search:** Powered by Pinecone and OpenAI embeddings, our search system offers a robust and accurate content retrieval experience.
+3. **Intelligent distributed practice:** The Memre Learning Engine ensures that you're prompted to review content just as you're about to forget, maximizing retention and improving learning efficiency.
 
-### Longform sources
+## How it Works 🧠
 
-studymode currently works best with relatively short text sources. We would very much like it to work with longform content.
+### Source Text and Quizzes
 
-### References as sources
+- **Manual Entry:** Type or paste any text you want to learn, and StudyMode will generate quizzes based on the content.
+- **Topic Generation:** Enter a topic, and StudyMode will generate source material and quizzes to help you learn about that topic.
+- **PDF Upload:** Upload a PDF, and StudyMode will extract the content and generate quizzes based on the information.
 
-Copying and pasting the text you want to generate quizzes from can be a point of friction. Ideally you could just say "college level introductory chemistry" or "The Odyssey" and get a stack of high-quality quizzes.
+### Semantic Search
 
-### Take learning goals into account
+StudyMode's powerful semantic search feature is powered by Pinecone and OpenAI embeddings. This allows users to find relevant content based on their queries, even if the search terms are not an exact match.
 
-Given a blob of text, there's only so much we can do to determine what's important for you to remember and what's not. Seeding the quiz generation request with some learning goals could help improve the quality and relevance of generated quizzes from source materials.
+### Intelligent Distributed Practice
 
-## Technologies
+The Memre Learning Engine helps users retain information more effectively by prompting them to review content just as they're about to forget it. This intelligent system adapts to your learning speed and ensures that your study sessions are efficient and effective.
 
-- Next.js 13
-- Firebase
-- Tailwind CSS
-- OpenAI GPT API
+## Built With 🛠️
+
+- [NextJS 13](https://nextjs.org/docs/getting-started)
+- [Firebase](https://firebase.google.com/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs/installation)
+- [OpenAI](https://platform.openai.com/docs/introduction)
+- [Pinecone](https://docs.pinecone.io/docs/overview)
 - [Memre Learning Engine API](https://rapidapi.com/memre-memre-default/api/learning-engine)
-- Deployed with Vercel
+
+Happy learning! 🎓
