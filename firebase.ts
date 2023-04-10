@@ -100,11 +100,11 @@ export const generateQuizzes = async (
     const { quizzes } = await response.json();
 
     // Save quizzes to users/quizzes subcollection
-    quizzes.forEach(async (quiz: Quiz) => {
+    const saveQuizPromises = quizzes.map(async (quiz: Quiz) => {
       // Convert quiz.answers.map(a => a.correct) to booleans
       const answers = quiz.answers.map((a: any) => ({
         ...a,
-        correct: a.correct === "true",
+        correct: a.correct === "true" || a.correct === true,
       }));
 
       let memreItemId = "";
@@ -156,6 +156,8 @@ export const generateQuizzes = async (
         }),
       });
     });
+
+    await Promise.all(saveQuizPromises);
 
     return quizzes;
   } catch (error: any) {

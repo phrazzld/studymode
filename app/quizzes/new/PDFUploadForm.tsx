@@ -58,6 +58,7 @@ export async function extractTextFromPdf(file: any) {
 
 export default function PDFUploadForm() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [startedUpload, setStartedUpload] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -190,8 +191,56 @@ export default function PDFUploadForm() {
     });
   };
 
+  const fetchSourceIds = async (section: LessonPlanSection) => {
+    try {
+      if (!userRefs?.firebaseId) {
+        console.warn("No firebaseId for current user.");
+        return [];
+      }
+      const query = new URLSearchParams({
+        query: section.text,
+        userId: userRefs.firebaseId,
+      });
+      const embeddingsResponse = await fetch(`/api/embeddings?${query}`);
+      const data = await embeddingsResponse.json();
+      return data.matches.slice(0, 3).map((d: any) => d.id);
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  const processSourceId = async (sourceId: string) => {
+    try {
+      if (!userRefs?.firebaseId) {
+        console.warn("No FirebaseId for current user.");
+        return;
+      }
+      const sourceRef = doc(
+        db,
+        "users",
+        userRefs.firebaseId,
+        "sources",
+        sourceId
+      );
+      const sourceSnapshot = await getDoc(sourceRef);
+      if (!sourceSnapshot.exists()) {
+        console.warn("No source found.");
+        return;
+      }
+      const sourceData = sourceSnapshot.data();
+      await generateQuizzes(
+        sourceData.text,
+        sourceId,
+        userRefs.memreId || null
+      );
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
   const generateQuizzesFromPdf = async () => {
     try {
+      setStartedUpload(true);
       if (!pdfFile) {
         console.warn("No file selected.");
         return;
@@ -263,61 +312,25 @@ export default function PDFUploadForm() {
         }),
       });
       const { lessonPlan } = await lessonPlanResponse.json();
-      console.log(lessonPlan);
 
-      let sourceIds: string[] = [];
-      lessonPlan.forEach(async (section: LessonPlanSection) => {
-        if (!userRefs?.firebaseId) {
-          console.warn("No firebaseId for current user.");
-          return;
-        }
-        const query = new URLSearchParams({
-          query: section.text,
-          userId: userRefs.firebaseId,
-        });
-        const embeddingsResponse = await fetch(`/api/embeddings?${query}`);
-        const data = await embeddingsResponse.json();
-        // Add the top three matches to sourceIds
-        sourceIds.push(...data.matches.slice(0, 3).map((d: any) => d.id));
-        console.log("data.matches:", data.matches);
-        const matches = data.matches.map((d: any) => ({
-          id: d.id,
-          score: d.score,
-          contentType: d.metadata.type,
-          title: d.metadata.title,
-          createdAt: d.metadata.createdAt,
-        }));
-        console.log("matches:", matches);
-      });
-      sourceIds.forEach(async (sourceId: string) => {
-        if (!userRefs?.firebaseId) {
-          console.warn("No FirebaseId for current user.");
-          return;
-        }
-        const sourceRef = doc(
-          db,
-          "users",
-          userRefs.firebaseId,
-          "sources",
-          sourceId
-        );
-        const sourceSnapshot = await getDoc(sourceRef);
-        if (!sourceSnapshot.exists()) {
-          console.warn("No source found.");
-          return;
-        }
-        const sourceData = sourceSnapshot.data();
-        console.log("sourceData:", sourceData);
-        await generateQuizzes(
-          sourceData.text,
-          sourceId,
-          userRefs.memreId || null
-        );
-      });
+      const sourceIds = await Promise.all(
+        lessonPlan.map((section: LessonPlanSection) => fetchSourceIds(section))
+      );
+
+      // Process each unique sourceId
+      const uniqueSourceIds = Array.from(new Set(sourceIds.flat()));
+
+      // Process each unique source ID, and account for the async nature of the processSourceId function
+      for (let i = 0; i < uniqueSourceIds.length; i++) {
+        await processSourceId(uniqueSourceIds[i]);
+      }
+
       setUploadSuccess(true);
     } catch (error: any) {
       console.error(error);
       setUploadError(error.message);
+    } finally {
+      setStartedUpload(false);
     }
   };
 
@@ -376,6 +389,7 @@ export default function PDFUploadForm() {
           <button
             className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600"
             onClick={generateQuizzesFromPdf}
+            disabled={startedUpload}
           >
             Generate Quizzes
           </button>
@@ -388,6 +402,11 @@ export default function PDFUploadForm() {
           accept="application/pdf"
           onChange={handleFileChange}
         />
+      )}
+      {startedUpload && uploadProgress === 0 && (
+        <Box sx={{ width: "100%", py: 2 }}>
+          <LinearProgress />
+        </Box>
       )}
       {uploadProgress > 0 && (
         <Box sx={{ width: "100%", py: 2 }}>
