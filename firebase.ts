@@ -73,7 +73,7 @@ export const createSource = async (
 export const generateQuizzes = async (
   sourceText: string,
   sourceId: string,
-  memreUserId: string
+  memreUserId: string | null
 ): Promise<Quiz[]> => {
   try {
     if (!auth.currentUser) {
@@ -107,26 +107,30 @@ export const generateQuizzes = async (
         correct: a.correct === "true",
       }));
 
-      // Get memreId from /api/memre-items
-      // TODO: Elegantly handle rate limiting
-      const memreResponse = await fetch("/api/memre-items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firebaseId: user.uid,
-          memreUserId: memreUserId,
-        }),
-      });
+      let memreItemId = "";
+      if (memreUserId) {
+        // Get memreId from /api/memre-items
+        // TODO: Elegantly handle rate limiting
+        const memreResponse = await fetch("/api/memre-items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebaseId: user.uid,
+            memreUserId: memreUserId,
+          }),
+        });
 
-      const { memreId } = await memreResponse.json();
+        const { memreId } = await memreResponse.json();
+        memreItemId = memreId;
+      }
 
       const createdAt = new Date();
       const quizDoc = await addDoc(
         collection(db, "users", user.uid, "quizzes"),
         {
-          memreId: memreId || "",
+          memreId: memreItemId || "",
           sourceId: sourceId,
           question: quiz.question,
           answers,

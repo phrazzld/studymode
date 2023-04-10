@@ -22,11 +22,6 @@ export const useSmartCreateQuizzes = (prompt: string) => {
 
       const user = auth.currentUser;
 
-      // Throw an error if userRefs or userRefs.memreId is null
-      if (!userRefs?.memreId) {
-        throw new Error("No Memre user id");
-      }
-
       // Create user document if one does not already exist
       await getDoc(doc(db, "users", user.uid));
 
@@ -37,7 +32,7 @@ export const useSmartCreateQuizzes = (prompt: string) => {
       const quizzes = await generateQuizzes(
         sourceText,
         sourceDoc.id,
-        userRefs.memreId
+        userRefs?.memreId || null
       );
 
       setQuizzes(quizzes);

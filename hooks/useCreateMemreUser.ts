@@ -40,8 +40,8 @@ export const useCreateMemreUser = () => {
 
       const { memreId } = await response.json();
 
-      setMemreId(memreId);
-      return memreId;
+      setMemreId(memreId || null);
+      return memreId || null;
     } catch (err: any) {
       console.error(err);
       setError(err.message);

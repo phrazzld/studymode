@@ -8,7 +8,7 @@ type UserRefs = {
 
 export type Quiz = {
   id: string;
-  memreId: string;
+  memreId: string | null;
   question: string;
   answers: Answer[];
   sourceId: string;

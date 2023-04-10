@@ -38,7 +38,7 @@ export default function Auth() {
       const memreId = createMemreUserResponseJson.memreId;
       setUserRefs({
         firebaseId,
-        memreId,
+        memreId: memreId || null,
         loaded: true,
       });
       router.push("/");

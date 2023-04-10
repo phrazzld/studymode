@@ -36,12 +36,12 @@ export default function RootLayout({
             const memreId = await createMemreUser();
             setUserRefs({
               firebaseId: user.uid,
-              memreId: memreId,
+              memreId: memreId || null,
               loaded: true,
             });
             setDoc(
               doc(db, "users", user.uid),
-              { memreId: memreId },
+              { memreId: memreId || null },
               { merge: true }
             );
           }
@@ -49,12 +49,12 @@ export default function RootLayout({
           const memreId = await createMemreUser();
           setUserRefs({
             firebaseId: user.uid,
-            memreId: memreId,
+            memreId: memreId || null,
             loaded: true,
           });
           setDoc(
             doc(db, "users", user.uid),
-            { memreId: memreId },
+            { memreId: memreId || null },
             { merge: true }
           );
         }

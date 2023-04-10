@@ -22,11 +22,6 @@ export const useSourceQuizzes = (sourceId: string) => {
         return;
       }
 
-      if (!userRefs.memreId) {
-        console.warn("No memreId found");
-        return;
-      }
-
       // Get quizzes from Firestore
       let qs: any[] = [];
       const quizzesQuery = query(

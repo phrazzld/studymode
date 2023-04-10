@@ -22,11 +22,6 @@ export const useCreateQuizzes = (source: string) => {
 
       const user = auth.currentUser;
 
-      // Throw an error if userRefs or userRefs.memreId is null
-      if (!userRefs?.memreId) {
-        throw new Error("No Memre user id");
-      }
-
       // Create user document if one does not already exist
       await getDoc(doc(db, "users", user.uid));
 
@@ -61,7 +56,11 @@ export const useCreateQuizzes = (source: string) => {
       });
 
       // Create quizzes
-      const qs = await generateQuizzes(source, sourceDoc.id, userRefs.memreId);
+      const qs = await generateQuizzes(
+        source,
+        sourceDoc.id,
+        userRefs?.memreId || null
+      );
 
       setQuizzes(qs);
     } catch (err: any) {

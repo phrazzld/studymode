@@ -154,11 +154,6 @@ export default function PDFUploadForm() {
 
     // Then generate a source from the chunk
 
-    // Throw an error if userRefs or userRefs.memreId is null
-    if (!userRefs?.memreId) {
-      throw new Error("No Memre user id");
-    }
-
     // Create user document if one does not already exist
     await getDoc(doc(db, "users", user.uid));
 
@@ -295,10 +290,6 @@ export default function PDFUploadForm() {
         console.log("matches:", matches);
       });
       sourceIds.forEach(async (sourceId: string) => {
-        if (!userRefs?.memreId) {
-          console.warn("No MemreId for current user.");
-          return;
-        }
         if (!userRefs?.firebaseId) {
           console.warn("No FirebaseId for current user.");
           return;
@@ -317,7 +308,11 @@ export default function PDFUploadForm() {
         }
         const sourceData = sourceSnapshot.data();
         console.log("sourceData:", sourceData);
-        await generateQuizzes(sourceData.text, sourceId, userRefs.memreId);
+        await generateQuizzes(
+          sourceData.text,
+          sourceId,
+          userRefs.memreId || null
+        );
       });
       setUploadSuccess(true);
     } catch (error: any) {

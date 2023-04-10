@@ -48,19 +48,24 @@ export default function Study() {
       return;
     }
 
-    // POST to the LE API to save the presentation
-    fetch("/api/study", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firebaseId: userRefs.firebaseId,
-        memreItemId: quiz.memreId,
-        memreUserId: userRefs.memreId,
-        quizResult: answer.correct ? "Correct" : "Incorrect",
-      }),
-    });
+    if (userRefs.memreId && quiz.memreId) {
+      // POST to the LE API to save the presentation
+      fetch("/api/study", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firebaseId: userRefs.firebaseId,
+          memreItemId: quiz.memreId,
+          memreUserId: userRefs.memreId,
+          quizResult: answer.correct ? "Correct" : "Incorrect",
+        }),
+      });
+    } else {
+      console.warn("Either user or quiz does not have a memreId")
+      // TODO: Try to create a memreId where it's missing
+    }
 
     addDoc(
       collection(
@@ -275,11 +280,6 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
         return;
       }
 
-      // Throw an error if userRefs or userRefs.memreId is null
-      if (!userRefs?.memreId) {
-        throw new Error("No Memre user id");
-      }
-
       // Craft input for smart creating the source from the quiz
       const correctAnswer = quiz.answers.find((answer) => answer.correct);
       const input =
@@ -291,7 +291,7 @@ function GenerateFollowUpQuizzesButton({ quiz }: { quiz: Quiz }) {
       const { sourceText, sourceDoc } = await createSource(input);
 
       // Create quizzes
-      await generateQuizzes(sourceText, sourceDoc.id, userRefs.memreId);
+      await generateQuizzes(sourceText, sourceDoc.id, userRefs?.memreId || null);
 
       setFinishedGenerating(true);
     } catch (err: any) {
