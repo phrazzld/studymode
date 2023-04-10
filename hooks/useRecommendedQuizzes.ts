@@ -53,6 +53,7 @@ export const useRecommendedQuizzes = () => {
             qs.push({ id: snap.id, ...snap.data() });
           });
           setQuizzes(shuffleArray(qs).slice(0, 10));
+          return;
         }
         const memreIds = data.data.data.map((item: any) => item.id);
 
